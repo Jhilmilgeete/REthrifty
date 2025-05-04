@@ -1,0 +1,267 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <main class="view-items-container">
+        <h1>
+            {% if selected_category %}
+                {{ selected_category|title }} Items
+            {% else %}
+                Available Items
+            {% endif %}
+        </h1>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash-message {{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="search-filter">
+            <input type="text" id="search" placeholder="Search items by name or description...">
+            <select id="category-filter">
+                <option value="">All Categories</option>
+                <option value="Clothes" {% if selected_category == 'Clothes' %}selected{% endif %}>Clothes</option>
+                <option value="Books" {% if selected_category == 'Books' %}selected{% endif %}>Books</option>
+                <option value="Accessories" {% if selected_category == 'Accessories' %}selected{% endif %}>Accessories</option>
+            </select>
+        </div>
+
+        <div class="items-grid">
+            {% if items %}
+                {% for item in items %}
+                    <div class="item-card">
+                        {% if item[10] %}  <!-- If there's an NGO ID -->
+                            <div class="item-status status-{{ item[11] }}">
+                                {% if item[11] == 'pending' %}
+                                    Donation Available
+                                {% elif item[11] == 'sent' %}
+                                    NGO Notified
+                                {% elif item[11] == 'partial' %}
+                                    Partially Notified
+                                {% elif item[11] == 'failed' %}
+                                    Notification Failed
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                        
+                        {% if item[4] %}
+                            <img src="{{ url_for('static', filename='images/' + item[4]) }}" 
+                                 alt="{{ item[1] }}" 
+                                 onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/placeholder.png') }}'">
+                        {% else %}
+                            <img src="{{ url_for('static', filename='images/placeholder.png') }}" alt="No image available">
+                        {% endif %}
+                        
+                        <div class="item-details">
+                            <h3>{{ item[1] }}</h3>
+                            <div class="category">{{ item[2] }}</div>
+                            <div class="description">{{ item[3] }}</div>
+                            <div class="item-meta">
+                                {% if item[7] %}
+                                    <p class="price">💰 Price: ₹{{ "%.2f"|format(item[7]) }}</p>
+                                {% endif %}
+                                {% if item[8] %}
+                                    <p class="location">📍 Location: {{ item[8] }}</p>
+                                {% endif %}
+                                <p class="date">📅 Posted: {{ item[5] }}</p>
+                            </div>
+                            {% if session.get('user_id') %}
+                                <a href="{{ url_for('item_details', item_id=item[0]) }}" class="view-details-btn">View Details</a>
+                            {% else %}
+                                <a href="{{ url_for('login') }}" class="login-to-view-btn">Login to View Details</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-items">
+                    <p>No items available at the moment.</p>
+                </div>
+            {% endif %}
+        </div>
+    </main>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .view-items-container {
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+    
+    .view-items-container h1 {
+        text-align: center;
+        color: #2c3e50;
+        margin-bottom: 2rem;
+    }
+    
+    .search-filter {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        max-width: 800px;
+        margin: 0 auto 2rem;
+    }
+    
+    .search-filter input,
+    .search-filter select {
+        padding: 0.8rem;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 1rem;
+    }
+    
+    .search-filter input {
+        flex: 1;
+    }
+    
+    .items-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.2rem;
+        padding: 0.5rem;
+    }
+    
+    .item-card {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        overflow: hidden;
+        transition: transform 0.3s ease;
+        width: 100%;
+    }
+    
+    .item-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .item-card img {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+    }
+    
+    .item-details {
+        padding: 1.2rem;
+    }
+    
+    .item-details h3 {
+        margin: 0 0 0.5rem 0;
+        color: #2c3e50;
+        font-size: 1.2rem;
+    }
+    
+    .item-details .category {
+        color: #7f8c8d;
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .item-details .description {
+        color: #34495e;
+        font-size: 0.95rem;
+        margin-bottom: 1rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    
+    .item-meta {
+        margin-bottom: 1rem;
+    }
+    
+    .item-meta p {
+        margin: 0.3rem 0;
+        font-size: 0.9rem;
+        color: #495057;
+    }
+    
+    .view-details-btn,
+    .login-to-view-btn {
+        display: block;
+        width: 100%;
+        padding: 0.8rem;
+        text-align: center;
+        text-decoration: none;
+        border-radius: 6px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .view-details-btn {
+        background: #4CAF50;
+        color: white;
+    }
+    
+    .view-details-btn:hover {
+        background: #388e3c;
+    }
+    
+    .login-to-view-btn {
+        background: #2196F3;
+        color: white;
+    }
+    
+    .login-to-view-btn:hover {
+        background: #1976D2;
+    }
+    
+    .item-status {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        padding: 0.3rem 0.6rem;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        z-index: 1;
+    }
+    
+    .status-pending {
+        background: #FFC107;
+        color: #000;
+    }
+    
+    .status-sent {
+        background: #4CAF50;
+        color: white;
+    }
+    
+    .status-partial {
+        background: #FF9800;
+        color: white;
+    }
+    
+    .status-failed {
+        background: #F44336;
+        color: white;
+    }
+    
+    .no-items {
+        text-align: center;
+        padding: 2rem;
+        color: #666;
+        font-size: 1.2rem;
+        grid-column: 1 / -1;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.getElementById('category-filter').addEventListener('change', function() {
+        const category = this.value;
+        if (category) {
+            window.location.href = "{{ url_for('view') }}?category=" + category;
+        } else {
+            window.location.href = "{{ url_for('view') }}";
+        }
+    });
+</script>
+{% endblock %}

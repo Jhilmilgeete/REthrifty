@@ -1,0 +1,214 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="details-container">
+        <div class="details-header">
+            {% if item[4] %}
+                <img src="{{ url_for('static', filename='images/' + item[4]) }}" alt="{{ item[1] }}" onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/placeholder.png') }}'">
+            {% else %}
+                <img src="{{ url_for('static', filename='images/placeholder.png') }}" alt="No image available">
+            {% endif %}
+            <div class="details-title">
+                <h1>{{ item[1] }}</h1>
+                <div class="category">{{ item[2] }}</div>
+                {% if item[7] %}
+                    <div class="price">₹{{ "%.2f"|format(item[7]) }}</div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="details-description">
+            {{ item[3] }}
+        </div>
+        <div class="item-meta">
+            {% if item[8] %}
+                <p class="location">📍 Location: {{ item[8] }}</p>
+            {% endif %}
+            <p class="date">📅 Posted: {{ item[5] }}</p>
+        </div>
+
+        <div class="contact-options">
+            <h3>Contact Seller</h3>
+            <div class="contact-buttons">
+                {% set message = "Hi! I'm interested in your item '" + item[1] + "' listed on REthrifty. Category: " + item[2] + ", Price: ₹" + ("%.2f"|format(item[7]) if item[7] else 'Free') + ". Could you please provide more details?" %}
+                {% if item[9] %}
+                    {% set phone = item[9]|string|replace('+', '')|replace(' ', '')|replace('-', '') %}
+                    {% if phone|length == 10 %}
+                        {% set phone = '91' + phone %}
+                    {% elif phone|length == 12 and phone.startswith('91') %}
+                        {% set phone = phone %}
+                    {% else %}
+                        {% set phone = '91' + phone[-10:] %}
+                    {% endif %}
+                    
+                    <a href="https://wa.me/{{ phone }}?text={{ message|urlencode }}" class="whatsapp-btn" target="_blank">
+                        <i class="fab fa-whatsapp fa-2x"></i> WhatsApp
+                    </a>
+                    <a href="sms:{{ phone }}?body={{ message|urlencode }}" class="sms-btn">
+                        <i class="fas fa-comment-alt fa-2x"></i> SMS
+                    </a>
+                {% else %}
+                    <p class="no-contact">Contact information not available</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <a href="{{ url_for('view') }}" class="back-btn">&#8592; Back to Items</a>
+    </div>
+{% endblock %}
+
+{% block extra_css %}
+    <style>
+        body {
+            background: #f6f8fa;
+            font-family: 'Montserrat', sans-serif;
+        }
+        .details-container {
+            max-width: 600px;
+            margin: 3rem auto;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            padding: 2.5rem 2rem 2rem 2rem;
+        }
+        .details-header {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .details-header img {
+            width: 160px;
+            height: 160px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 1px solid #eee;
+            background: #fafafa;
+        }
+        .details-title {
+            flex: 1;
+        }
+        .details-title h1 {
+            margin: 0 0 0.5rem 0;
+            font-size: 2rem;
+            color: #2c3e50;
+            font-weight: 700;
+        }
+        .details-title .category {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .details-title .category::before {
+            content: "🏷️";
+        }
+        .details-title .price {
+            font-size: 1.5rem;
+            color: #2c3e50;
+            font-weight: 600;
+            margin: 0.5rem 0;
+        }
+        .details-title .price::before {
+            content: "💰";
+            margin-right: 0.5rem;
+        }
+        .details-description {
+            color: #34495e;
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+        .item-meta {
+            background: #f8f9fa;
+            padding: 1.2rem 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+        .item-meta p {
+            margin: 0.7rem 0;
+            font-size: 1rem;
+            color: #495057;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .item-meta .location::before {
+            content: "📍";
+        }
+        .item-meta .contact::before {
+            content: "📞";
+        }
+        .item-meta .date::before {
+            content: "📅";
+        }
+        .back-btn {
+            display: inline-block;
+            background: #4CAF50;
+            color: #fff;
+            padding: 0.8rem 2rem;
+            border-radius: 6px;
+            font-weight: 600;
+            text-decoration: none;
+            font-size: 1.1rem;
+            margin-top: 1.5rem;
+            transition: background 0.2s;
+        }
+        .back-btn:hover {
+            background: #388e3c;
+        }
+        .contact-options {
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .contact-options h3 {
+            margin: 0 0 1rem 0;
+            color: #2c3e50;
+            font-size: 1.2rem;
+        }
+        .contact-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .whatsapp-btn, .sms-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.8rem 1.5rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            color: white;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .whatsapp-btn {
+            background-color: #25D366;
+        }
+        .whatsapp-btn:hover {
+            background-color: #128C7E;
+            transform: translateY(-2px);
+        }
+        .sms-btn {
+            background-color: #2196F3;
+        }
+        .sms-btn:hover {
+            background-color: #1976D2;
+            transform: translateY(-2px);
+        }
+        .no-contact {
+            color: #666;
+            font-style: italic;
+        }
+        @media (max-width: 600px) {
+            .contact-buttons {
+                flex-direction: column;
+            }
+            .contact-btn {
+                justify-content: center;
+            }
+        }
+    </style>
+{% endblock %} 

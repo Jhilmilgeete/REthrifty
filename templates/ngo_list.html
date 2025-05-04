@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+
+{% block title %}Donate to NGOs - REthrifty{% endblock %}
+
+{% block content %}
+<div class="ngo-list-container">
+    <div class="ngo-list-header">
+        <h1>Our Partner NGOs</h1>
+        <a href="{{ url_for('join_ngo') }}" class="join-ngo-btn">
+            <i class="fas fa-handshake"></i> Join as NGO
+        </a>
+    </div>
+    
+    <div class="ngo-grid">
+        {% for ngo in ngos %}
+        <div class="ngo-card">
+            <div class="ngo-image">
+                {% if ngo[6] %}
+                    <img src="{{ url_for('static', filename='images/' + ngo[6]) }}" alt="{{ ngo[1] }} logo">
+                {% else %}
+                    <img src="{{ url_for('static', filename='images/placeholder.png') }}" alt="No image available">
+                {% endif %}
+            </div>
+            <div class="ngo-info">
+                <h2>{{ ngo[1] }}</h2>
+                <p class="ngo-description">{{ ngo[5] }}</p>
+                <p class="ngo-location"><i class="fas fa-map-marker-alt"></i> {{ ngo[4] }}</p>
+                <a href="{{ url_for('donate', ngo_id=ngo[0]) }}" class="donate-btn">
+                    <i class="fas fa-heart"></i> Donate Now
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .ngo-list-container {
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+
+    .ngo-list-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
+    .ngo-list-header h1 {
+        color: #2c3e50;
+        margin: 0;
+    }
+
+    .join-ngo-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.8rem 1.5rem;
+        background-color: #4CAF50;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: 500;
+        transition: background-color 0.3s;
+    }
+
+    .join-ngo-btn:hover {
+        background-color: #388e3c;
+    }
+
+    .ngo-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 2rem;
+    }
+
+    .ngo-card {
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        transition: transform 0.3s;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .ngo-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .ngo-image {
+        height: 200px;
+        overflow: hidden;
+    }
+
+    .ngo-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .ngo-info {
+        padding: 1.5rem;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .ngo-info h2 {
+        margin: 0 0 1rem 0;
+        color: #2c3e50;
+        font-size: 1.5rem;
+    }
+
+    .ngo-description {
+        color: #666;
+        margin-bottom: 1rem;
+        line-height: 1.5;
+        flex: 1;
+    }
+
+    .ngo-location {
+        color: #555;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .ngo-location i {
+        color: #4CAF50;
+    }
+
+    .donate-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.8rem 1.5rem;
+        background-color: #4CAF50;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: 500;
+        transition: all 0.3s;
+        margin-top: auto;
+    }
+
+    .donate-btn:hover {
+        background-color: #388e3c;
+        transform: translateY(-2px);
+    }
+
+    @media (max-width: 768px) {
+        .ngo-list-header {
+            flex-direction: column;
+            gap: 1rem;
+            text-align: center;
+        }
+
+        .ngo-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
