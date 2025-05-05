@@ -20,33 +20,33 @@
         <div class="profile-card">
             <form method="POST" action="{{ url_for('profile') }}" enctype="multipart/form-data" class="profile-form">
                 <div class="profile-picture">
-                    <img src="{{ url_for('static', filename='images/' + user.profile_pic) if user.profile_pic else url_for('static', filename='images/default-avatar.png') }}" 
-                         alt="Profile Picture" 
+                            <img src="{{ url_for('static', filename='images/' + user.profile_pic) if user.profile_pic else url_for('static', filename='images/default-avatar.png') }}" 
+                                 alt="Profile Picture" 
                          class="profile-img">
                     <label for="profile-pic" class="upload-btn">
                         <span>Change Picture</span>
                         <input type="file" id="profile-pic" name="profile_pic" accept="image/*">
                     </label>
-                </div>
+                        </div>
                 
                 <div class="form-group">
                     <label for="username">Username</label>
                     <input type="text" id="username" name="username" value="{{ user.username }}" required>
-                </div>
+                        </div>
                 
                 <div class="form-group">
                     <label for="email">Email</label>
                     <input type="email" id="email" name="email" value="{{ user.email }}" required>
-                </div>
+                        </div>
                 
                 <button type="submit" class="update-btn">Update Profile</button>
-            </form>
+                    </form>
             
             <div class="profile-stats">
                 <div class="stat-card">
                     <h3>Listed for Sale</h3>
                     <p class="stat-value">{{ total_sell }}</p>
-                </div>
+                        </div>
                 <div class="stat-card">
                     <h3>Listed for Donation</h3>
                     <p class="stat-value">{{ total_donation }}</p>
@@ -63,49 +63,49 @@
                     <a href="{{ url_for('sell') }}" class="action-btn">List New Item</a>
                 </div>
                 
-                {% if items_for_sale %}
+                    {% if items_for_sale %}
                     <div class="table-container">
                         <table class="activity-table">
-                            <thead>
-                                <tr>
-                                    <th>Item Name</th>
-                                    <th>Category</th>
-                                    <th>Price</th>
-                                    <th>Status</th>
-                                    <th>Posted</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for item in items_for_sale %}
+                                <thead>
                                     <tr>
-                                        <td>{{ item[1] }}</td>
-                                        <td>{{ item[2] }}</td>
-                                        <td>₹{{ "%.2f"|format(item[3]) }}</td>
-                                        <td>
+                                        <th>Item Name</th>
+                                        <th>Category</th>
+                                        <th>Price</th>
+                                        <th>Status</th>
+                                        <th>Posted</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in items_for_sale %}
+                                        <tr>
+                                            <td>{{ item[1] }}</td>
+                                            <td>{{ item[2] }}</td>
+                                            <td>₹{{ "%.2f"|format(item[3]) }}</td>
+                                            <td>
                                             <span class="status-badge {{ item[4] }}">
-                                                {{ item[4] }}
-                                            </span>
-                                        </td>
-                                        <td>{{ item[5] }}</td>
-                                        <td>
+                                                    {{ item[4] }}
+                                                </span>
+                                            </td>
+                                            <td>{{ item[5] }}</td>
+                                            <td>
                                             <form action="{{ url_for('delete_item', item_id=item[0]) }}" method="POST" class="action-form">
                                                 <button type="submit" class="delete-btn" onclick="return confirm('Are you sure you want to delete this item?')">
                                                     Delete
                                                 </button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                {% else %}
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
                     <div class="empty-state">
                         <p>You haven't listed any items for sale yet.</p>
                         <a href="{{ url_for('sell') }}" class="action-btn">List an Item</a>
                     </div>
-                {% endif %}
+                    {% endif %}
             </div>
 
             <!-- Donations -->
@@ -115,51 +115,51 @@
                     <a href="{{ url_for('donate') }}" class="action-btn">Donate New Item</a>
                 </div>
                 
-                {% if donations %}
+                    {% if donations %}
                     <div class="table-container">
                         <table class="activity-table">
-                            <thead>
-                                <tr>
-                                    <th>Item Name</th>
-                                    <th>Category</th>
-                                    <th>NGO</th>
-                                    <th>Status</th>
-                                    <th>Date</th>
-                                    <th>Contact</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for donation in donations %}
+                                <thead>
                                     <tr>
-                                        <td>{{ donation[1] }}</td>
-                                        <td>{{ donation[2] }}</td>
-                                        <td>{{ donation[3] }}</td>
-                                        <td>
+                                        <th>Item Name</th>
+                                        <th>Category</th>
+                                        <th>NGO</th>
+                                        <th>Status</th>
+                                        <th>Date</th>
+                                        <th>Contact</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for donation in donations %}
+                                        <tr>
+                                            <td>{{ donation[1] }}</td>
+                                            <td>{{ donation[2] }}</td>
+                                            <td>{{ donation[3] }}</td>
+                                            <td>
                                             <span class="status-badge {{ donation[4] }}">
-                                                {{ donation[4] }}
-                                            </span>
-                                        </td>
-                                        <td>{{ donation[5] }}</td>
-                                        <td>{{ donation[6] }}</td>
-                                        <td>
+                                                    {{ donation[4] }}
+                                                </span>
+                                            </td>
+                                            <td>{{ donation[5] }}</td>
+                                            <td>{{ donation[6] }}</td>
+                                            <td>
                                             <form action="{{ url_for('delete_donation', donation_id=donation[0]) }}" method="POST" class="action-form">
                                                 <button type="submit" class="delete-btn" onclick="return confirm('Are you sure you want to delete this donation?')">
                                                     Delete
                                                 </button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                {% else %}
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
                     <div class="empty-state">
                         <p>You haven't made any donations yet.</p>
                         <a href="{{ url_for('donate') }}" class="action-btn">Donate an Item</a>
                     </div>
-                {% endif %}
+                    {% endif %}
             </div>
         </div>
     </div>
@@ -458,7 +458,7 @@
         }
 
         .profile-header h1 {
-            font-size: 1.5rem;
+        font-size: 1.5rem;
         }
 
         .profile-img {
@@ -525,7 +525,7 @@
         .profile-card {
             width: 300px;
             flex-shrink: 0;
-        }
+    }
 
         .activities-section {
             flex: 1;
