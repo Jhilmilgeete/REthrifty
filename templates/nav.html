@@ -1,327 +1,330 @@
-{% if session.get('user_id') %}
-  {% if session.get('is_admin') %}
-    <li><a href="{{ url_for('admin') }}">Admin Panel</a></li>
-  {% endif %}
-{% endif %}
+<header
 <nav class="navbar">
-    <div class="nav-container">
-        <div class="nav-brand">
-            <a href="{{ url_for('index') }}" class="logo-link">
-                <img src="{{ url_for('static', filename='images/rethrift_icon.png') }}" alt="REthrifty Logo" class="logo-img">
-                <span class="brand-name">REthrifty</span>
-            </a>
-        </div>
-        
-        <button class="nav-toggle" aria-label="Toggle navigation">
-            <span class="hamburger"></span>
-        </button>
+  <div class="nav-container">
+      <div class="nav-brand">
+          <a href="{{ url_for('index') }}" class="logo-link">
+              <img src="{{ url_for('static', filename='images/rethrift_icon.png') }}" alt="REthrifty Logo" class="logo-img">
+              <span class="brand-name">REthrifty</span>
+          </a>
+      </div>
+      
+      <button class="nav-toggle" aria-label="Toggle navigation">
+          <span class="hamburger"></span>
+      </button>
 
-        <div class="nav-menu">
-            <ul class="nav-links">
-                <li><a href="{{ url_for('index') }}" class="nav-link">Home</a></li>
-                <li><a href="{{ url_for('sell') }}" class="nav-link">Sell</a></li>
-                <li><a href="{{ url_for('donate') }}" class="nav-link">Donate</a></li>
-                <li><a href="{{ url_for('about') }}" class="nav-link">About</a></li>
-                <li><a href="{{ url_for('help') }}" class="nav-link">Help</a></li>
-                <li><a href="{{ url_for('profile') }}" class="nav-link">Profile</a></li>
-                {% if session.get('user_id') %}
-                {% if session.get('is_admin') %}
-                    <li><a href="{{ url_for('admin') }}" class="nav-link">Admin Panel</a></li>
-                {% endif %}
-                <li><a href="{{ url_for('logout') }}" class="nav-link logout-btn">Logout</a></li>
+      <div class="nav-menu">
+          <ul class="nav-links">
+            <li><a href="{{ url_for('index') }}" class="nav-link">Home</a></li>
+            <li><a href="{{ url_for('sell') }}" class="nav-link">Sell</a></li>
+            <li><a href="{{ url_for('donate') }}" class="nav-link">Donate</a></li>
+            <li><a href="{{ url_for('view') }}" class="nav-link">Buy</a></li>
+            <li><a href="{{ url_for('ngo_list') }}" class="nav-link">NGO List</a></li>
+            <li><a href="{{ url_for('about') }}" class="nav-link">About</a></li>
+            <li><a href="{{ url_for('help') }}" class="nav-link">Help</a></li>
+            <li><a href="{{ url_for('profile') }}" class="nav-link">Profile</a></li>
+    
+            {% if session.get('user_id') %}
+              {% if session.get('is_admin') %}
+                <li><a href="{{ url_for('admin') }}" class="nav-link">Admin Panel</a></li>
+              {% endif %}
+              <li><a href="{{ url_for('logout') }}" class="nav-link">Logout</a></li>
             {% else %}
-                <li><a href="{{ url_for('login') }}" class="nav-link login-btn">Login</a></li>
-                <li><a href="{{ url_for('register') }}" class="nav-link register-btn">Register</a></li>
+              <li><a href="{{ url_for('login') }}" class="nav-link">Login</a></li>
             {% endif %}
-            </ul>
-        </div>
-    </div>
+          </ul>
+      </div>
+  </div>
 </nav>
-
+</header>
 <style>
-    :root {
-        --nav-bg: #1a2c1a;
-        --nav-text: #ffffff;
-        --nav-hover: #8bc34a;
-        --nav-border: #2e3d2f;
-        --nav-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        --nav-transition: all 0.3s ease;
-    }
+/* General styles */
+:root {
+    --nav-bg: #1a2c1a;
+    --nav-text: #ffffff;
+    --nav-hover: #8bc34a;
+    --nav-border: #2e3d2f;
+    --nav-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    --nav-transition: all 0.3s ease;
+}
 
-    .navbar {
-        background: var(--nav-bg);
-        box-shadow: var(--nav-shadow);
-        position: sticky;
-        top: 0;
-        z-index: 1000;
-        width: 100%;
-    }
+.navbar {
+    background: var(--nav-bg);
+    box-shadow: var(--nav-shadow);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    width: 100%;
+    padding: 0.5rem 0; /* Reduced top and bottom padding */
+}
 
-    .nav-container {
-        max-width: 1400px;
-        padding: 0.5rem 2rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
+.nav-container {
+    max-width: 1400px;
+    padding: 0.25rem 2rem; /* Reduced padding for the container */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0 auto;
+}
 
+.nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Adjusted gap */
+    min-width: 180px; /* Reduced min-width */
+}
+
+.logo-link {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+}
+
+.logo-img {
+    height: 40px; /* Reduced logo height */
+    width: auto;
+    transition: var(--nav-transition);
+}
+
+.brand-name {
+    font-size: 1.3rem; /* Reduced font size */
+    font-weight: bold;
+    color: var(--nav-text);
+    font-family: 'Montserrat', sans-serif;
+    transition: var(--nav-transition);
+}
+
+.nav-toggle {
+    display: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    z-index: 1001;
+}
+
+.hamburger {
+    display: block;
+    width: 25px;
+    height: 2px;
+    background: var(--nav-text);
+    position: relative;
+    transition: var(--nav-transition);
+}
+
+.hamburger::before,
+.hamburger::after {
+    content: '';
+    position: absolute;
+    width: 25px;
+    height: 2px;
+    background: var(--nav-text);
+    transition: var(--nav-transition);
+}
+
+.hamburger::before {
+    top: -8px;
+}
+
+.hamburger::after {
+    bottom: -8px;
+}
+
+.nav-toggle.active .hamburger {
+    background: transparent;
+}
+
+.nav-toggle.active .hamburger::before {
+    transform: rotate(45deg);
+    top: 0;
+}
+
+.nav-toggle.active .hamburger::after {
+    transform: rotate(-45deg);
+    bottom: 0;
+}
+
+.nav-menu {
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+    min-width: 400px;
+}
+
+.nav-links {
+    margin-top: 6px;
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding-left: 50px;
+    gap: 10px; /* Adjusted gap */
+    justify-content: flex-end;
+    width: 100%;
+}
+
+.nav-link {
+    color: var(--nav-text);
+    text-decoration: none;
+    padding: 0.75rem 1.5rem; /* Reduced padding for links */
+    border-radius: 5px;
+    transition: var(--nav-transition);
+    font-weight: 500;
+    font-size: 0.95rem; /* Slightly reduced font size */
+    white-space: nowrap;
+    position: relative;
+}
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: var(--nav-hover);
+    transition: var(--nav-transition);
+    transform: translateX(-50%);
+}
+
+.nav-link:hover::after {
+    width: 100%;
+}
+
+.nav-link:hover {
+    color: var(--nav-hover);
+}
+
+.login-btn {
+    border: 1px solid var(--nav-text);
+    padding: 0.5rem 1.5rem;
+}
+
+.login-btn:hover {
+    background: var(--nav-text);
+    color: var(--nav-bg);
+}
+
+.register-btn {
+    background: var(--nav-hover);
+    color: var(--nav-bg);
+    padding: 0.5rem 1.5rem;
+}
+
+.register-btn:hover {
+    background: var(--nav-text);
+    color: var(--nav-bg);
+}
+
+.logout-btn {
+    background: #dc3545;
+    color: var(--nav-text);
+    padding: 0.5rem 1.5rem;
+}
+
+.logout-btn:hover {
+    background: #c82333;
+}
+
+/* Media queries for responsiveness */
+@media (max-width: 1024px) {
     .nav-brand {
-        display: flex;
-        align-items: center;
-        gap: 50px;
-        margin-right: auto;
-        padding-left:0;
-        padding-right:30px;
-        min-width: 200px;
-    }
-
-    .logo-link {
-        display: flex;
-        align-items: center;
-        text-decoration: none;
-        margin-left: 0;
-    }
-
-    .logo-img {
-        height: 50px;
-        width: auto;
-        transition: var(--nav-transition);
-    }
-
-    .brand-name {
-        font-size: 1.5rem;
-        font-weight: bold;
-        color: var(--nav-text);
-        font-family: 'Montserrat', sans-serif;
-        transition: var(--nav-transition);
-        margin-left: 0;
-    }
-
-    .nav-toggle {
-        display: none;
-        background: none;
-        border: none;
-        cursor: pointer;
-        padding: 0.5rem;
-        z-index: 1001;
-    }
-
-    .hamburger {
-        display: block;
-        width: 25px;
-        height: 2px;
-        background: var(--nav-text);
-        position: relative;
-        transition: var(--nav-transition);
-    }
-
-    .hamburger::before,
-    .hamburger::after {
-        content: '';
-        position: absolute;
-        width: 25px;
-        height: 2px;
-        background: var(--nav-text);
-        transition: var(--nav-transition);
-    }
-
-    .hamburger::before {
-        top: -8px;
-    }
-
-    .hamburger::after {
-        bottom: -8px;
-    }
-
-    .nav-toggle.active .hamburger {
-        background: transparent;
-    }
-
-    .nav-toggle.active .hamburger::before {
-        transform: rotate(45deg);
-        top: 0;
-    }
-
-    .nav-toggle.active .hamburger::after {
-        transform: rotate(-45deg);
-        bottom: 0;
+        min-width: 180px;
     }
 
     .nav-menu {
-        display: flex;
-        align-items: center;
-        margin-left: auto;
-        min-width: 400px;
+        min-width: 350px;
     }
 
     .nav-links {
-        display: flex;
-        list-style: none;
-        margin: 0;
-        padding-left: 40px;
-        gap: 2rem;
-        justify-content: flex-end;
-        width: 100%;
+        gap: 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .nav-container {
+        padding: 0.25rem 1.5rem; /* Reduced padding */
+    }
+
+    .nav-brand {
+        margin-right: 0;
+        padding-left: 0;
+        min-width: auto;
+    }
+
+    .nav-menu {
+        margin-left: 0;
+        min-width: auto;
+    }
+
+    .nav-links {
+        justify-content: flex-start;
+        padding-left: 10px;
+    }
+
+    .nav-toggle {
+        display: block;
+    }
+
+    .nav-menu {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 80%;
+        max-width: 400px;
+        height: 100vh;
+        background: var(--nav-bg);
+        padding: 5rem 2rem 2rem;
+        box-shadow: var(--nav-shadow);
+        transition: right 0.3s ease;
+        overflow-y: auto;
+    }
+
+    .nav-menu.active {
+        right: 0;
     }
 
     .nav-link {
-        color: var(--nav-text);
-        text-decoration: none;
-        padding: 4rem 1rem;
-        border-radius: 5px;
-        transition: var(--nav-transition);
-        font-weight: 500;
-        font-size: 1rem;
-        white-space: nowrap;
-        position: relative;
+        width: 100%;
+        padding: 1rem;
+        border-bottom: 1px solid var(--nav-border);
     }
 
     .nav-link::after {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 50%;
-        width: 0;
-        height: 2px;
-        background: var(--nav-hover);
-        transition: var(--nav-transition);
-        transform: translateX(-50%);
+        display: none;
     }
 
-    .nav-link:hover::after {
-        width: 100%;
-    }
-
-    .nav-link:hover {
-        color: var(--nav-hover);
-    }
-
-    .login-btn {
-        border: 1px solid var(--nav-text);
-        padding: 0.5rem 1.5rem;
-    }
-
-    .login-btn:hover {
-        background: var(--nav-text);
-        color: var(--nav-bg);
-    }
-
-    .register-btn {
-        background: var(--nav-hover);
-        color: var(--nav-bg);
-        padding: 0.5rem 1.5rem;
-    }
-
-    .register-btn:hover {
-        background: var(--nav-text);
-        color: var(--nav-bg);
-    }
-
+    .login-btn,
+    .register-btn,
     .logout-btn {
-        background: #dc3545;
-        color: var(--nav-text);
-        padding: 0.5rem 1.5rem;
+        width: 100%;
+        text-align: center;
+        margin-top: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .nav-container {
+        padding: 0.25rem 1rem;
     }
 
-    .logout-btn:hover {
-        background: #c82333;
+    .nav-brand {
+        padding-left: 0;
     }
 
-    @media (max-width: 1024px) {
-        .nav-brand {
-            min-width: 180px;
-        }
-        .nav-menu {
-            min-width: 350px;
-        }
-        .nav-links {
-            gap: 1.5rem;
-        }
+    .brand-name {
+        font-size: 1.2rem;
     }
 
-    @media (max-width: 768px) {
-        .nav-container {
-            padding: 0.5rem 1.5rem;
-        }
-
-        .nav-brand {
-            margin-right: 0;
-            padding-left: 0;
-            min-width: auto;
-        }
-
-        .nav-menu {
-            margin-left: 0;
-            min-width: auto;
-        }
-
-        .nav-links {
-            justify-content: flex-start;
-        }
-
-        .nav-toggle {
-            display: block;
-        }
-
-        .nav-menu {
-            position: fixed;
-            top: 0;
-            right: -100%;
-            width: 80%;
-            max-width: 400px;
-            height: 100vh;
-            background: var(--nav-bg);
-            padding: 5rem 2rem 2rem;
-            box-shadow: var(--nav-shadow);
-            transition: right 0.3s ease;
-            overflow-y: auto;
-        }
-
-        .nav-menu.active {
-            right: 0;
-        }
-
-        .nav-link {
-            width: 100%;
-            padding: 1rem;
-            border-bottom: 1px solid var(--nav-border);
-        }
-
-        .nav-link::after {
-            display: none;
-        }
-
-        .login-btn,
-        .register-btn,
-        .logout-btn {
-            width: 100%;
-            text-align: center;
-            margin-top: 1rem;
-        }
+    .logo-img {
+        height: 40px;
     }
 
-    @media (max-width: 480px) {
-        .nav-container {
-            padding: 0.5rem 1rem;
-        }
-
-        .nav-brand {
-            padding-left: 0;
-        }
-
-        .brand-name {
-            font-size: 1.2rem;
-        }
-
-        .logo-img {
-            height: 40px;
-        }
-
-        .nav-menu {
-            width: 100%;
-            max-width: none;
-        }
+    .nav-menu {
+        width: 100%;
+        max-width: none;
     }
+}
+
 </style>
 
 <script>
@@ -364,4 +367,4 @@
             }
         });
     });
-</script> 
+</script>
