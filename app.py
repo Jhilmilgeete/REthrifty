@@ -112,35 +112,8 @@ def init_db():
         # Enable foreign key constraints
         c.execute('PRAGMA foreign_keys = ON')
         
-        # Check if tables exist and add new columns if needed
-        c.execute("PRAGMA table_info(users)")
-        user_columns = [col[1] for col in c.fetchall()]
-        
-        c.execute("PRAGMA table_info(ngos)")
-        ngo_columns = [col[1] for col in c.fetchall()]
-        
-        c.execute("PRAGMA table_info(items)")
-        item_columns = [col[1] for col in c.fetchall()]
-        
-        # Add missing columns to users table
-        if 'is_admin' not in user_columns:
-            c.execute('ALTER TABLE users ADD COLUMN is_admin BOOLEAN DEFAULT 0')
-        if 'last_login' not in user_columns:
-            c.execute('ALTER TABLE users ADD COLUMN last_login TIMESTAMP')
-        
-        # Add missing columns to ngos table
-        if 'is_verified' not in ngo_columns:
-            c.execute('ALTER TABLE ngos ADD COLUMN is_verified BOOLEAN DEFAULT 0')
-        if 'verified_at' not in ngo_columns:
-            c.execute('ALTER TABLE ngos ADD COLUMN verified_at TIMESTAMP')
-        if 'verified_by' not in ngo_columns:
-            c.execute('ALTER TABLE ngos ADD COLUMN verified_by INTEGER')
-        
-        # Add missing columns to items table
-        if 'status' not in item_columns:
-            c.execute('ALTER TABLE items ADD COLUMN status TEXT DEFAULT "active"')
-        
         # Create tables if they don't exist
+        # First create users table
         c.execute('''
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -154,7 +127,82 @@ def init_db():
             )
         ''')
         
-        # Create or update admin user
+        # Create ngos table with all required columns including logo
+        c.execute('''
+            CREATE TABLE IF NOT EXISTS ngos (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                email TEXT UNIQUE NOT NULL,
+                phone TEXT NOT NULL,
+                address TEXT NOT NULL,
+                description TEXT,
+                is_verified BOOLEAN DEFAULT 0,
+                verified_at TIMESTAMP,
+                verified_by INTEGER,
+                logo TEXT  -- Column added to store logo filename
+            )
+        ''')
+        
+        # Create items table
+        c.execute('''
+            CREATE TABLE IF NOT EXISTS items (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                category TEXT NOT NULL,
+                description TEXT,
+                image_filename TEXT,
+                source TEXT NOT NULL,
+                price TEXT,
+                location TEXT,
+                contact_number TEXT,
+                user_id INTEGER,
+                ngo_id INTEGER,
+                status TEXT DEFAULT "active",
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id),
+                FOREIGN KEY (ngo_id) REFERENCES ngos(id)
+            )
+        ''')
+        
+        # Check existing columns for possible migrations
+        c.execute("PRAGMA table_info(ngos)")
+        ngo_columns = [col[1] for col in c.fetchall()]
+        
+        # Handle missing columns in existing databases
+        if 'logo' not in ngo_columns:
+            c.execute('ALTER TABLE ngos ADD COLUMN logo TEXT')
+        
+        # Create donations table
+        c.execute('''
+            CREATE TABLE IF NOT EXISTS donations (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                donor_name TEXT NOT NULL,
+                donor_email TEXT NOT NULL,
+                donor_phone TEXT NOT NULL,
+                item_name TEXT NOT NULL,
+                item_description TEXT,
+                item_category TEXT,
+                ngo_id INTEGER NOT NULL,
+                status TEXT DEFAULT "pending",
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP,
+                FOREIGN KEY (ngo_id) REFERENCES ngos(id)
+            )
+        ''')
+        
+        # Create item_views table
+        c.execute('''
+            CREATE TABLE IF NOT EXISTS item_views (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                item_id INTEGER NOT NULL,
+                user_id INTEGER NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (item_id) REFERENCES items(id),
+                FOREIGN KEY (user_id) REFERENCES users(id)
+            )
+        ''')
+        
+        # Create admin user if not exists
         c.execute('SELECT id FROM users WHERE username = ? OR email = ?', ('Readmin', 'admin@example.com'))
         existing_admin = c.fetchone()
         
@@ -326,19 +374,27 @@ def send_email(to_email, subject, message):
 @app.route('/')
 def index():
     try:
+        db = get_db()
+        cursor = db.cursor()
+
         # Get the three most recent items regardless of status
-        cursor = get_db().cursor()
         cursor.execute("""
             SELECT * FROM items 
             ORDER BY created_at DESC 
             LIMIT 3
         """)
         latest_items = cursor.fetchall()
+
+        # === REMOVED CATEGORY FETCHING LOGIC ===
+
         cursor.close()
         
+        # Pass only latest_items to the template
         return render_template('index.html', latest_items=latest_items)
+        
     except Exception as e:
-        print(f"Error fetching latest items: {e}")
+        print(f"Error fetching data for index page: {e}")
+        # Render with empty latest_items if error
         return render_template('index.html', latest_items=[])
 
 @app.route('/about')
@@ -348,16 +404,33 @@ def about():
 @app.route('/ngo-list')
 def ngo_list():
     try:
+        # {{Add debug print to confirm route is hit}}
+        print("Accessing /ngo-list route.")
         cursor = get_db().cursor()
+        
+        # {{Add debug print before query}}
+        print("Executing query: SELECT * FROM ngos WHERE is_verified = 1 ORDER BY name ASC")
         cursor.execute('SELECT * FROM ngos WHERE is_verified = 1 ORDER BY name ASC')
         ngos = cursor.fetchall()
+        
+        # {{Add debug print after query}}
+        print(f"Query returned {len(ngos)} NGOs.")
+        # Print the first few NGOs fetched to see their structure and content
+        for i, ngo in enumerate(ngos[:5]): # Print details for up to the first 5 NGOs
+            # Handle potential missing 'logo' key if column wasn't added properly or ngo row is malformed
+            logo_info = ngo['logo'] if 'logo' in ngo.keys() else 'N/A (logo key missing)'
+            print(f"  NGO {i+1}: ID={ngo['id']}, Name='{ngo['name']}', Verified={bool(ngo['is_verified'])}, Logo='{logo_info}'")
+        
+        cursor.close()
+        
         return render_template('ngo_list.html', ngos=ngos)
     except Exception as e:
-        print(f"Error fetching NGOs: {e}")
+        print(f"Error fetching NGOs in ngo_list route: {e}")
         return render_template('ngo_list.html', ngos=[])
 
 @app.route('/ngo')
 def ngo():
+    # ... existing code ...
     return render_template('ngo.html')
 
 @app.route('/help')
@@ -370,6 +443,10 @@ def login():
         username = request.form['username']
         password = request.form['password']
         
+        # Debug print for admin login attempt
+        if username == 'Readmin':
+            print(f"Attempting admin login for user: {username}, password provided: '{password}'")
+
         db = get_db()
         cursor = db.cursor()
         
@@ -378,53 +455,81 @@ def login():
             cursor.execute('SELECT id, password, is_admin FROM users WHERE username = ?', (username,))
             user = cursor.fetchone()
             
+            if username == 'Readmin' and user:
+                print(f"Admin user '{username}' found in DB. ID: {user['id']}, Stored Hash: {user['password'][:20]}..., IsAdmin DB: {user['is_admin']}")
+            elif username == 'Readmin' and not user:
+                print(f"Admin user '{username}' NOT found in DB.")
+
             if user:
-                # Check if the password hash uses scrypt
-                if user['password'].startswith('scrypt:'):
-                    # For existing scrypt hashes, we'll need to rehash the password
-                    # using a more memory-efficient method
-                    new_hash = generate_password_hash(password, method='pbkdf2:sha256')
-                    # Update the password hash in the database
+                stored_password_hash = user['password']
+                is_admin_from_db = bool(user['is_admin']) # Ensure it's a Python boolean
+                
+                # Handle scrypt passwords (legacy, admin should ideally not have this if init_db ran)
+                if stored_password_hash.startswith('scrypt:'):
+                    if username == 'Readmin':
+                        print("Admin user has a scrypt hash. Validating and attempting rehash.")
+                    # First, check password against the old scrypt hash
+                    if check_password_hash(stored_password_hash, password):
+                        new_hash = generate_password_hash(password, method='pbkdf2:sha256')
+                        cursor.execute('''
+                            UPDATE users 
+                            SET password = ?, last_login = datetime('now')
+                            WHERE id = ?
+                        ''', (new_hash, user['id']))
+                        db.commit()
+                        if username == 'Readmin':
+                            print(f"Admin scrypt hash updated to: {new_hash[:20]}...")
+                        
+                        session.permanent = True
+                        session['user_id'] = user['id']
+                        session['username'] = username
+                        session['is_admin'] = is_admin_from_db 
+                        print(f"User {username} logged in successfully (after scrypt rehash and validation). Admin status from DB: {is_admin_from_db}, Set in session: {session['is_admin']}")
+                        flash('Logged in successfully!', 'success')
+                        return redirect(url_for('index'))
+                    else:
+                        # Password check failed for scrypt hash
+                        if username == 'Readmin':
+                            print("Admin scrypt password check FAILED.")
+                        # Fall through to the generic error message at the end of the function
+                
+                # Standard password check (e.g., pbkdf2)
+                elif check_password_hash(stored_password_hash, password):
                     cursor.execute('''
                         UPDATE users 
-                        SET password = ?, last_login = datetime('now')
+                        SET last_login = datetime('now')
                         WHERE id = ?
-                    ''', (new_hash, user['id']))
+                    ''', (user['id'],))
                     db.commit()
                     
                     session.permanent = True
                     session['user_id'] = user['id']
                     session['username'] = username
-                    session['is_admin'] = user['is_admin']
-                    print(f"User {username} logged in successfully")
+                    session['is_admin'] = is_admin_from_db
+                    
+                    if username == 'Readmin':
+                        print(f"Admin user {username} logged in successfully (non-scrypt). Admin status from DB: {is_admin_from_db}, Set in session: {session['is_admin']}")
+                    else:
+                        print(f"User {username} logged in successfully (non-scrypt). Admin status from DB: {is_admin_from_db}, Set in session: {session['is_admin']}")
                     flash('Logged in successfully!', 'success')
                     return redirect(url_for('index'))
                 else:
-                    # Use regular password hash checking for non-scrypt hashes
-                    if check_password_hash(user['password'], password):
-                        # Update last login time
-                        cursor.execute('''
-                            UPDATE users 
-                            SET last_login = datetime('now')
-                            WHERE id = ?
-                        ''', (user['id'],))
-                        db.commit()
-                        
-                        session.permanent = True
-                        session['user_id'] = user['id']
-                        session['username'] = username
-                        session['is_admin'] = user['is_admin']
-                        print(f"User {username} logged in successfully")
-                        flash('Logged in successfully!', 'success')
-                        return redirect(url_for('index'))
+                    # Password check failed for non-scrypt hash
+                    if username == 'Readmin':
+                        print(f"Admin password check FAILED for non-scrypt hash. Stored hash starts with: {stored_password_hash[:20]}...")
             
-            print(f"Failed login attempt for username: {username}")
+            # This part is reached if user is None OR if any password check above failed and didn't return
+            print(f"Failed login attempt for username: {username}. User found: {bool(user)}")
             flash('Invalid username or password.', 'error')
             return render_template('login.html')
                 
         except sqlite3.Error as e:
             print(f"Database error during login: {str(e)}")
             flash(f'Database error: {str(e)}', 'error')
+            return render_template('login.html')
+        except Exception as e:
+            print(f"An unexpected error occurred during login: {str(e)}")
+            flash('An unexpected error occurred. Please try again.', 'error')
             return render_template('login.html')
             
     return render_template('login.html')
@@ -788,33 +893,42 @@ def accept_donation(donation_id):
 @app.route('/view')
 def view():
     try:
-        category = request.args.get('category', '')
+        # Get filter parameters from the request
+        category = request.args.get('item-category', '')
+        location = request.args.get('location', '')
+
         db = get_db()
         cursor = db.cursor()
         
+        # Start with a base query
+        query = '''
+            SELECT * FROM items 
+            WHERE source = 'sell'
+        '''
+        params = []
+
+        # Add category filter if provided
         if category:
-            # Get items for sale with category filter
-            cursor.execute('''
-                SELECT * FROM items 
-                WHERE source = 'sell' 
-                AND category = ?
-                ORDER BY created_at DESC
-            ''', (category,))
-            items = cursor.fetchall()
-        else:
-            # Get all items for sale
-            cursor.execute('''
-                SELECT * FROM items 
-                WHERE source = 'sell' 
-                ORDER BY created_at DESC
-            ''')
-            items = cursor.fetchall()
+            query += ' AND category = ?'
+            params.append(category)
+
+        # Add location filter if provided
+        if location:
+            query += ' AND location = ?'
+            params.append(location)
+            
+        # Add order by clause
+        query += ' ORDER BY created_at DESC'
+
+        # Execute the query
+        cursor.execute(query, params)
+        items = cursor.fetchall()
         
-        db.close()
-        return render_template('view_items.html', items=items, selected_category=category)
+        # Pass filter values to the template for pre-filling the form
+        return render_template('view_items.html', items=items, selected_category=category, selected_location=location)
     except Exception as e:
         print(f"Error fetching items: {e}")
-        return render_template('view_items.html', items=[], selected_category=category)
+        return render_template('view_items.html', items=[], selected_category=category, selected_location=location)
 
 @app.route('/items/<int:item_id>')
 def item_details(item_id):
@@ -839,24 +953,7 @@ def item_details(item_id):
         flash('Item not found!', 'error')
         return redirect(url_for('view'))
 
-# Route: Delete Item
-@app.route('/items/delete/<int:item_id>', methods=['POST'])
-def delete_item(item_id):
-    try:
-        db = get_db()
-        cursor = db.cursor()
-        # First, delete all related item_views
-        cursor.execute('DELETE FROM item_views WHERE item_id = ?', (item_id,))
-        # If you have other tables referencing items, add similar lines here
 
-        # Now delete the item itself
-        cursor.execute('DELETE FROM items WHERE id = ?', (item_id,))
-        db.commit()
-        db.close()
-        flash('Item deleted successfully!', 'success')
-    except Exception as e:
-        flash(f'Error deleting item: {str(e)}', 'error')
-    return redirect(url_for('profile'))
 
 @app.route('/sell', methods=['GET', 'POST'])
 def sell():
@@ -1312,86 +1409,140 @@ def delete_ngo(ngo_id):
     db = get_db()
     cursor = db.cursor()
     
+    # Check if user is admin
+    cursor.execute('SELECT is_admin FROM users WHERE id = ?', (session['user_id'],))
+    admin_user = cursor.fetchone()
+    
+    if not admin_user or not admin_user['is_admin']:
+        flash('You do not have permission to perform this action.', 'error')
+        # Not closing db here, teardown_appcontext will handle it.
+        return redirect(url_for('index'))
+
     try:
-        # Check if user is admin
-        cursor.execute('SELECT is_admin FROM users WHERE id = ?', (session['user_id'],))
-        user = cursor.fetchone()
-        
-        if not user or not user['is_admin']:
-            flash('You do not have permission to perform this action.', 'error')
-            return redirect(url_for('index'))
-        
-        # Delete NGO
+        # Check if the NGO exists
+        cursor.execute('SELECT id FROM ngos WHERE id = ?', (ngo_id,))
+        ngo_to_delete = cursor.fetchone() 
+        if not ngo_to_delete:
+            flash('NGO not found.', 'error')
+            # Not closing db here, teardown_appcontext will handle it.
+            return redirect(url_for('admin')) # Return early
+
+        # Delete related data from other tables (e.g., donations, items)
+        cursor.execute('DELETE FROM donations WHERE ngo_id = ?', (ngo_id,))
+        cursor.execute('DELETE FROM items WHERE ngo_id = ?', (ngo_id,))
+
+        # Delete the NGO
         cursor.execute('DELETE FROM ngos WHERE id = ?', (ngo_id,))
         db.commit()
-        
+        db.close() # Explicitly close on success, following pattern of similar functions
         flash('NGO deleted successfully!', 'success')
-        return redirect(url_for('admin'))
         
-    except sqlite3.Error as e:
-        print(f"Database error during NGO deletion: {str(e)}")
-        flash(f'Database error: {str(e)}', 'error')
-        return redirect(url_for('admin'))
+    except Exception as e: 
+        # Log the exception for easier debugging
+        print(f"Error deleting NGO (ID: {ngo_id}): {str(e)}")
+        flash(f'Error deleting NGO: {str(e)}', 'error')
+        # db.close() will be handled by teardown_appcontext if an exception occurs here
+        
+    return redirect(url_for('admin')) # Common redirect point
 
-@app.route('/admin/delete-user/<int:user_id>', methods=['POST'])
-def delete_user(user_id):
-    if not session.get('user_id'):
-        flash('Please login to perform this action.', 'error')
-        return redirect(url_for('login'))
-    
-    db = get_db()
-    cursor = db.cursor()
-    
+@app.route('/items/delete/<int:item_id>', methods=['POST'])
+def delete_item(item_id):
     try:
-        # Check if user is admin
-        cursor.execute('SELECT is_admin FROM users WHERE id = ?', (session['user_id'],))
-        user = cursor.fetchone()
-        
-        if not user or not user['is_admin']:
-            flash('You do not have permission to perform this action.', 'error')
-            return redirect(url_for('index'))
-        
-        # Delete user
-        cursor.execute('DELETE FROM users WHERE id = ?', (user_id,))
-        db.commit()
-        
-        flash('User deleted successfully!', 'success')
-        return redirect(url_for('admin'))
-        
-    except sqlite3.Error as e:
-        print(f"Database error during user deletion: {str(e)}")
-        flash(f'Database error: {str(e)}', 'error')
-        return redirect(url_for('admin'))
+        db = get_db()
+        cursor = db.cursor()
+        # First, delete all related item_views
+        cursor.execute('DELETE FROM item_views WHERE item_id = ?', (item_id,))
+        # If you have other tables referencing items, add similar lines here
 
-@app.route('/admin/delete-item/<int:item_id>', methods=['POST'])
-def admin_delete_item(item_id):
-    if not session.get('user_id'):
-        flash('Please login to perform this action.', 'error')
-        return redirect(url_for('login'))
-    
-    db = get_db()
-    cursor = db.cursor()
-    
-    try:
-        # Check if user is admin
-        cursor.execute('SELECT is_admin FROM users WHERE id = ?', (session['user_id'],))
-        user = cursor.fetchone()
-        
-        if not user or not user['is_admin']:
-            flash('You do not have permission to perform this action.', 'error')
-            return redirect(url_for('index'))
-        
-        # Delete item
+        # Now delete the item itself
         cursor.execute('DELETE FROM items WHERE id = ?', (item_id,))
         db.commit()
-        
+        db.close()
         flash('Item deleted successfully!', 'success')
+    except Exception as e:
+        flash(f'Error deleting item: {str(e)}', 'error')
+    return redirect(url_for('profile'))
+
+# Add delete user and delete ngo routes
+@app.route('/users/delete/<int:user_id>', methods=['POST'])
+def delete_user(user_id):
+    # Check if user is logged in and is an admin
+    if not session.get('user_id') or not session.get('is_admin'):
+        flash('You do not have permission to delete users.', 'error')
         return redirect(url_for('admin'))
+
+    try:
+        db = get_db()
+        cursor = db.cursor()
+
+        # Check if the user exists
+        cursor.execute('SELECT id FROM users WHERE id = ?', (user_id,))
+        user = cursor.fetchone()
+        if not user:
+            flash('User not found.', 'error')
+            return redirect(url_for('admin'))
+
+        # Prevent admin from deleting themselves
+        if user_id == session.get('user_id'):
+            flash('You cannot delete yourself.', 'error')
+            return redirect(url_for('admin'))
         
-    except sqlite3.Error as e:
-        print(f"Database error during item deletion: {str(e)}")
-        flash(f'Database error: {str(e)}', 'error')
-        return redirect(url_for('admin'))
+        print(f"Attempting deletion for user_id: {user_id}")
+
+        # Delete related data from item_views
+        cursor.execute('DELETE FROM item_views WHERE user_id = ?', (user_id,))
+        print(f"Deleted {cursor.rowcount} rows from item_views for user_id {user_id}")
+
+        # Delete related data from items
+        cursor.execute('DELETE FROM items WHERE user_id = ?', (user_id,))
+        print(f"Deleted {cursor.rowcount} rows from items for user_id {user_id}")
+
+        # Now attempt to delete the user
+        print(f"Attempting final delete from users table for user_id {user_id}")
+        cursor.execute('DELETE FROM users WHERE id = ?', (user_id,))
+        print(f"Deleted {cursor.rowcount} row(s) from users for user_id {user_id}")
+        
+        db.commit()
+        print(f"Committed changes for user deletion ID: {user_id}")
+
+        db.close() # Closing connection here after commit
+        flash('User deleted successfully!', 'success')
+    except Exception as e:
+        # Print the specific error causing the failure
+        print(f"Database error during user deletion: {str(e)}") # Log the specific error
+        flash(f'Error deleting user: {str(e)}', 'error')
+        # Ensure connection is closed even on error if it was opened
+        db = getattr(g, '_database', None)
+        if db is not None:
+            db.close()
+            
+    return redirect(url_for('admin'))
+
+@app.route('/ngos/delete/<int:ngo_id>', methods=['POST'])
+def admin_delete_ngo(ngo_id):
+    try:
+        db = get_db()
+        cursor = db.cursor()
+
+        # Check if the NGO exists
+        cursor.execute('SELECT id FROM ngos WHERE id = ?', (ngo_id,))
+        ngo = cursor.fetchone()
+        if not ngo:
+            flash('NGO not found.', 'error')
+            return redirect(url_for('admin'))
+
+        # Delete related data from other tables (e.g., donations, items)
+        cursor.execute('DELETE FROM donations WHERE ngo_id = ?', (ngo_id,))
+        cursor.execute('DELETE FROM items WHERE ngo_id = ?', (ngo_id,))
+
+        # Delete the NGO
+        cursor.execute('DELETE FROM ngos WHERE id = ?', (ngo_id,))
+        db.commit()
+        db.close()
+        flash('NGO deleted successfully!', 'success')
+    except Exception as e:
+        flash(f'Error deleting NGO: {str(e)}', 'error')
+    return redirect(url_for('admin'))
 
 if __name__ == '__main__':
     app.run(debug=True)

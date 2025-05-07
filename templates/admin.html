@@ -91,7 +91,7 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    <form method="POST" action="{{ url_for('delete_ngo', ngo_id=ngo.id) }}" class="d-inline">
+                                    <form method="POST" action="{{ url_for('admin_delete_ngo', ngo_id=ngo.id) }}" class="d-inline">
                                         <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this NGO?')">Delete</button>
                                     </form>
                                 </td>
@@ -171,7 +171,8 @@
                                 </td>
                                 <td>{{ item.status }}</td>
                                 <td>
-                                    <form method="POST" action="{{ url_for('admin_delete_item', item_id=item.id) }}" class="d-inline">
+                                    {# Change url_for('admin_delete_item') to url_for('delete_item') #}
+                                    <form method="POST" action="{{ url_for('delete_item', item_id=item.id) }}" class="d-inline">
                                         <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this item?')">Delete</button>
                                     </form>
                                 </td>

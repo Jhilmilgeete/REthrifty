@@ -1,309 +1,120 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <main class="view-items-container">
-        <h1>
-            {% if selected_category %}
-                {{ selected_category|title }} Items
-            {% else %}
-                Available Items
-            {% endif %}
-        </h1>
-        
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="flash-message {{ category }}">
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
+    <div class="view-items-container">
+        <h2>Items For Sale</h2>
 
-        <div class="search-filter">
-            <input type="text" id="search" placeholder="Search items by name or description...">
-            <select id="category-filter">
-                <option value="">All Categories</option>
-                <option value="Clothes" {% if selected_category == 'Clothes' %}selected{% endif %}>Clothes</option>
-                <option value="Books" {% if selected_category == 'Books' %}selected{% endif %}>Books</option>
-                <option value="Accessories" {% if selected_category == 'Accessories' %}selected{% endif %}>Accessories</option>
-            </select>
+        {# Add the search/filter form here #}
+        <div class="search-filter-form">
+            <form action="{{ url_for('view') }}" method="GET">
+                <label for="item-category">Category:</label>
+                <select id="item-category" name="item-category">
+                    <option value="">All Categories</option>
+                    <option value="Books" {% if selected_category == 'Books' %}selected{% endif %}>Books</option>
+                    <option value="Clothes" {% if selected_category == 'Clothes' %}selected{% endif %}>Clothes</option>
+                    <option value="Household Items" {% if selected_category == 'Household Items' %}selected{% endif %}>Household Items</option>
+                    <option value="Accessories" {% if selected_category == 'Accessories' %}selected{% endif %}>Accessories</option>
+                </select>
+
+                <label for="location">Location:</label>
+                <input type="text" id="location" name="location" value="{{ selected_location }}">
+
+                <button type="submit">Search</button>
+            </form>
         </div>
+
+        {# Display "No items found" message if items list is empty #}
+        {% if not items %}
+            <p>No items found matching your criteria.</p>
+        {% endif %}
 
         <div class="items-grid">
-            {% if items %}
-                {% for item in items %}
-                    <div class="item-card">
-                        {% if item[10] %}  <!-- If there's an NGO ID -->
-                            <div class="item-status status-{{ item[11] }}">
-                                {% if item[11] == 'pending' %}
-                                    Donation Available
-                                {% elif item[11] == 'sent' %}
-                                    NGO Notified
-                                {% elif item[11] == 'partial' %}
-                                    Partially Notified
-                                {% elif item[11] == 'failed' %}
-                                    Notification Failed
-                                {% endif %}
-                            </div>
-                        {% endif %}
-                        
-                        {% if item[4] %}
-                            <img src="{{ url_for('static', filename='images/' + item[4]) }}" 
-                                 alt="{{ item[1] }}" 
-                                 onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/placeholder.png') }}'">
-                        {% else %}
-                            <img src="{{ url_for('static', filename='images/placeholder.png') }}" alt="No image available">
-                        {% endif %}
-                        
-                        <div class="item-details">
-                            <h3>{{ item[1] }}</h3>
-                            <div class="category">{{ item[2] }}</div>
-                            <div class="description">{{ item[3] }}</div>
-                            <div class="item-meta">
-                                {% if item[7] %}
-                                    <p class="price">💰 Price: ₹{{ "%.2f"|format(item[7]) }}</p>
-                                {% endif %}
-                                {% if item[8] %}
-                                    <p class="location">📍 Location: {{ item[8] }}</p>
-                                {% endif %}
-                                <p class="date">📅 Posted: {{ item[5] }}</p>
-                            </div>
-                            {% if session.get('user_id') %}
-                                <a href="{{ url_for('item_details', item_id=item[0]) }}" class="view-details-btn">View Details</a>
-                            {% else %}
-                                <a href="{{ url_for('login') }}" class="login-to-view-btn">Login to View Details</a>
-                            {% endif %}
-                        </div>
-                    </div>
-                {% endfor %}
-            {% else %}
-                <div class="no-items">
-                    <p>No items available at the moment.</p>
-                </div>
-            {% endif %}
+            {% for item in items %}
+            <div class="item-card">
+                {# --- MODIFIED IMAGE LOGIC --- #}
+                {# Determine the correct image path #}
+                {% set image_to_display = 'images/' + item.image_filename if item.image_filename else ('images/clothes_placeholder.png' if item.category == 'Clothes' else 'images/placeholder.png') %}
+                {# Display the image #}
+                <img src="{{ url_for('static', filename=image_to_display) }}" alt="{{ item.name }}">
+                {# --- END MODIFIED IMAGE LOGIC --- #}
+
+                <h3>{{ item.name }}</h3>
+                <p>Category: {{ item.category }}</p>
+                <p>Price: {{ item.price }}</p>
+                <p>Location: {{ item.location }}</p>
+                <a href="{{ url_for('item_details', item_id=item.id) }}">View Details</a>
+            </div>
+            {% endfor %}
         </div>
-    </main>
+    </div>
 {% endblock %}
 
 {% block extra_css %}
 <style>
     .view-items-container {
-        width: 100%;
-        max-width: 1400px;
+        max-width: 1000px;
         margin: 2rem auto;
-        padding: 0 1rem;
+        padding: 20px;
+        background-color: #f9f9f9;
+        border-radius: 8px;
     }
-    
-    .view-items-container h1 {
-        text-align: center;
-        color: var(--color-primary);
-        margin-bottom: 2rem;
-        font-size: clamp(1.5rem, 3vw, 2.5rem);
-    }
-    
-    .search-filter {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-        margin-bottom: 2rem;
-        max-width: 800px;
-        margin: 0 auto 2rem;
-    }
-    
-    .search-filter input,
-    .search-filter select {
-        width: 100%;
-        padding: 0.8rem;
-        border: 1px solid #ddd;
+
+    .search-filter-form {
+        margin-bottom: 20px;
+        padding: 15px;
+        background-color: #fff;
         border-radius: 6px;
-        font-size: 1rem;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
     }
-    
+
+    .search-filter-form label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+
+    .search-filter-form input[type="text"],
+    .search-filter-form select {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+
+    .search-filter-form button {
+        padding: 8px 15px;
+        background-color: #5cb85c;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
     .items-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 1.2rem;
-        padding: 0.5rem;
-        width: 100%;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
     }
-    
+
     .item-card {
-        background: var(--color-background);
-        border-radius: var(--card-radius);
-        box-shadow: var(--card-shadow);
-        overflow: hidden;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        display: flex;
-        flex-direction: column;
-        height: 100%;
+        background-color: #fff;
+        border-radius: 8px;
+        padding: 15px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
     }
-    
-    .item-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-    }
-    
+
     .item-card img {
         width: 100%;
         height: 200px;
         object-fit: cover;
-    }
-    
-    .item-details {
-        padding: 1.2rem;
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-        flex-grow: 1;
-    }
-    
-    .item-details h3 {
-        margin: 0;
-        color: var(--color-primary);
-        font-size: clamp(1.125rem, 2vw, 1.25rem);
-        line-height: 1.3;
-    }
-    
-    .item-details .category {
-        color: var(--color-text-light);
-        font-size: clamp(0.875rem, 1.5vw, 0.9375rem);
-    }
-    
-    .item-details .description {
-        color: var(--color-text);
-        font-size: clamp(0.9375rem, 1.5vw, 1rem);
-        line-height: 1.5;
-        display: -webkit-box;
-        -webkit-line-clamp: 3;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-    }
-    
-    .item-meta {
-        margin-top: auto;
-        padding-top: 0.75rem;
-        border-top: 1px solid #eee;
-    }
-    
-    .item-meta p {
-        margin: 0.3rem 0;
-        font-size: clamp(0.875rem, 1.5vw, 0.9375rem);
-        color: var(--color-text);
-    }
-    
-    .view-details-btn,
-    .login-to-view-btn {
-        display: block;
-        width: 100%;
-        padding: 0.8rem 1.2rem;
-        text-align: center;
-        text-decoration: none;
         border-radius: 6px;
-        font-weight: 600;
-        transition: all 0.3s ease;
-        margin-top: 1rem;
-        font-size: clamp(0.9375rem, 1.5vw, 1rem);
-        border: none;
-        cursor: pointer;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    
-    .view-details-btn {
-        background: #4CAF50;
-        color: white;
-    }
-    
-    .view-details-btn:hover {
-        background: #388E3C;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-    }
-    
-    .login-to-view-btn {
-        background: #2196F3;
-        color: white;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-    }
-    
-    .login-to-view-btn:hover {
-        background: #1976D2;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-    }
-    
-    .login-to-view-btn::before {
-        content: "🔒";
-        font-size: 1.1em;
-    }
-    
-    .item-status {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        padding: 0.5rem 1rem;
-        border-radius: 4px;
-        font-size: clamp(0.75rem, 1.2vw, 0.875rem);
-        font-weight: 500;
-        z-index: 1;
-    }
-    
-    .status-pending {
-        background: var(--color-warning);
-        color: #000;
-    }
-    
-    .status-sent {
-        background: var(--color-success);
-        color: white;
-    }
-    
-    .status-partial {
-        background: var(--color-warning-dark);
-        color: white;
-    }
-    
-    .status-failed {
-        background: var(--color-error);
-        color: white;
-    }
-    
-    .no-items {
-        text-align: center;
-        padding: 2rem;
-        color: var(--color-text-light);
-        font-size: clamp(1.125rem, 2vw, 1.25rem);
-        grid-column: 1 / -1;
+        margin-bottom: 10px;
     }
 
-    @media (min-width: 576px) {
-        .search-filter {
-            flex-direction: row;
-                }
-        
-        .search-filter input {
-            flex: 1;
-        }
-        
-        .search-filter select {
-            width: auto;
-        }
+    .item-card h3 {
+        margin-top: 0;
+        margin-bottom: 10px;
     }
 </style>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-    document.getElementById('category-filter').addEventListener('change', function() {
-        const category = this.value;
-        if (category) {
-            window.location.href = "{{ url_for('view') }}?category=" + category;
-                } else {
-            window.location.href = "{{ url_for('view') }}";
-                }
-        });
-    </script>
 {% endblock %}

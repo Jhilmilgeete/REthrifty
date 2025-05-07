@@ -79,33 +79,33 @@
                                 <tbody>
                                     {% for item in items_for_sale %}
                                         <tr>
-                                            <td>{{ item[1] }}</td>
-                                            <td>{{ item[2] }}</td>
-                                            <td>₹{{ "%.2f"|format(item[3]) }}</td>
+                                            <td>{{ item['name'] }}</td>
+                                            <td>{{ item['category'] }}</td>
+                                            <td>₹{{ "%.2f"|format(item['price']) }}</td>
                                             <td>
-                                            <span class="status-badge {{ item[4] }}">
-                                                    {{ item[4] }}
+                                                <span class="status-badge {{ item['status'] }}">
+                                                    {{ item['status'] }}
                                                 </span>
                                             </td>
-                                            <td>{{ item[5] }}</td>
+                                            <td>{{ item['created_at'] }}</td>
                                             <td>
-                                            <form action="{{ url_for('delete_item', item_id=item[0]) }}" method="POST" class="action-form">
-                                                <button type="submit" class="delete-btn" onclick="return confirm('Are you sure you want to delete this item?')">
-                                                    Delete
-                                                </button>
-                                                </form>
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    {% else %}
-                    <div class="empty-state">
-                        <p>You haven't listed any items for sale yet.</p>
-                        <a href="{{ url_for('sell') }}" class="action-btn">List an Item</a>
-                    </div>
-                    {% endif %}
+                                                <form action="{{ url_for('delete_item', item_id=item['id']) }}" method="POST" class="action-form">
+                                                    <button type="submit" class="delete-btn" onclick="return confirm('Are you sure you want to delete this item?')">
+                                                        Delete
+                                                    </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <p>You haven't listed any items for sale yet.</p>
+                    <a href="{{ url_for('sell') }}" class="action-btn">List an Item</a>
+                </div>
+                {% endif %}
             </div>
 
             <!-- Donations -->
@@ -132,21 +132,21 @@
                                 <tbody>
                                     {% for donation in donations %}
                                         <tr>
-                                            <td>{{ donation[1] }}</td>
-                                            <td>{{ donation[2] }}</td>
-                                            <td>{{ donation[3] }}</td>
+                                            <td>{{ donation['item_name'] }}</td>
+                                            <td>{{ donation['item_category'] }}</td>
+                                            <td>{{ donation['ngo_name'] }}</td>
                                             <td>
-                                            <span class="status-badge {{ donation[4] }}">
-                                                    {{ donation[4] }}
+                                                <span class="status-badge {{ donation['status'] }}">
+                                                    {{ donation['status'] }}
                                                 </span>
                                             </td>
-                                            <td>{{ donation[5] }}</td>
-                                            <td>{{ donation[6] }}</td>
+                                            <td>{{ donation['created_at'] }}</td>
+                                            <td>{{ donation['donor_phone'] }}</td>
                                             <td>
-                                            <form action="{{ url_for('delete_donation', donation_id=donation[0]) }}" method="POST" class="action-form">
-                                                <button type="submit" class="delete-btn" onclick="return confirm('Are you sure you want to delete this donation?')">
-                                                    Delete
-                                                </button>
+                                                <form action="{{ url_for('delete_donation', donation_id=donation['id']) }}" method="POST" class="action-form">
+                                                    <button type="submit" class="delete-btn" onclick="return confirm('Are you sure you want to delete this donation?')">
+                                                        Delete
+                                                    </button>
                                                 </form>
                                             </td>
                                         </tr>
