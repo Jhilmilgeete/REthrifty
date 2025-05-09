@@ -18,17 +18,17 @@
     <h2>Categories</h2>
     <div class="category-cards">
         <a href="{{ url_for('view', category='Clothes') }}" class="category-card">
-            <img src="{{ url_for('static', filename='images/istockphoto-463334307-612x612.jpg') }}" alt="Clothes">
+            <img src="{{ url_for('static', filename='images/store-clothes-clothing-line-fashion-wallpaper (1).jpg') }}" alt="Clothes">
             <h3>Clothes</h3>
             <p>Find pre-loved clothing items</p>
         </a>
         <a href="{{ url_for('view', category='Books') }}" class="category-card">
-            <img src="{{ url_for('static', filename='images/harry_potter_book.jpg') }}" alt="Books">
+            <img src="{{ url_for('static', filename='images/stack-spines-bbooks.webp') }}" alt="Books">
             <h3>Books</h3>
             <p>Discover second-hand books</p>
         </a>
         <a href="{{ url_for('view', category='Accessories') }}" class="category-card">
-            <img src="{{ url_for('static', filename='images/titan_watch.jpg') }}" alt="Accessories">
+            <img src="{{ url_for('static', filename='images/accesories.jpeg') }}" alt="Accessories">
             <h3>Accessories</h3>
             <p>Shop for unique accessories</p>
         </a>
@@ -44,7 +44,7 @@
                     {% if item[4] %}
                         <img src="{{ url_for('static', filename='images/' + item[4]) }}" 
                              alt="{{ item[1] }}" 
-                             onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/placeholder.png') }}'">
+                             onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/placeholder.png') }}';">
                     {% else %}
                         <img src="{{ url_for('static', filename='images/placeholder.png') }}" alt="No image available">
                     {% endif %}
