@@ -355,9 +355,9 @@ a {
 /* Main Content Center */
 main {
   flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  /* display: flex; */
+  /* justify-content: center; */
+  /* align-items: center; */
 }
 
 /* Login Box */
@@ -425,11 +425,11 @@ main {
 
 /* Donation Center the form container */
 main {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 80vh;
+  /* display: flex; */
+  /* flex-direction: column; */
+  /* align-items: center; */
+  /* justify-content: center; */
+  min-height: 80vh; /* This might still be relevant for some pages */
 }
 
 h2 {

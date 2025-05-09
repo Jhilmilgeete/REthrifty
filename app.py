@@ -183,12 +183,20 @@ def init_db():
                 item_description TEXT,
                 item_category TEXT,
                 ngo_id INTEGER NOT NULL,
-                status TEXT DEFAULT "pending",
+                user_id INTEGER, -- Link to the user who made the donation
+                status TEXT DEFAULT "pending", -- e.g., "pending", "accepted", "rejected", "completed"
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP,
-                FOREIGN KEY (ngo_id) REFERENCES ngos(id)
+                FOREIGN KEY (ngo_id) REFERENCES ngos(id),
+                FOREIGN KEY (user_id) REFERENCES users(id) -- Foreign key constraint
             )
         ''')
+
+        # Add user_id column to donations if it doesn't exist
+        c.execute("PRAGMA table_info(donations)")
+        donations_columns = [col[1] for col in c.fetchall()]
+        if 'user_id' not in donations_columns:
+            c.execute('ALTER TABLE donations ADD COLUMN user_id INTEGER REFERENCES users(id)')
         
         # Create item_views table
         c.execute('''
@@ -684,42 +692,61 @@ def donate():
     if not session.get('user_id'):
         flash('Please login to access this page.', 'error')
         return redirect(url_for('login'))
+
+    db = get_db()
+    cursor = db.cursor()
+    
+    user_name = ''
+    user_email = ''
+    # Fetch user details for pre-filling the form (for GET request)
+    # and for error re-rendering (in POST request)
+    if 'user_id' in session:
+        current_user_details = cursor.execute('SELECT username, email FROM users WHERE id = ?', (session['user_id'],)).fetchone()
+        if current_user_details:
+            user_name = current_user_details['username']
+            user_email = current_user_details['email']
+
     if request.method == 'POST':
         try:
-            donor_name = request.form['donor-name']
-            donor_email = request.form['donor-email']
-            donor_phone = request.form['donor-phone']
+            donor_name_form = request.form['donor-name']
+            donor_email_form = request.form['donor-email']
+            donor_phone_form = request.form['donor-phone']
             item_name = request.form['item-name']
             item_category = request.form['item-category']
             item_description = request.form['item-description']
             ngo_id = request.form.get('ngo')
             
-            if not all([donor_name, donor_email, donor_phone, item_name, item_category, ngo_id]):
+            if not all([donor_name_form, donor_email_form, donor_phone_form, item_name, item_category, ngo_id]):
                 flash('All fields are required.', 'error')
-                return redirect(url_for('donate'))
+                cursor.execute('SELECT id, name, description FROM ngos WHERE is_verified = 1') # Only verified NGOs
+                ngos_list_for_error = cursor.fetchall()
+                return render_template('donate.html', ngos=ngos_list_for_error, 
+                                       user_name=user_name, user_email=user_email, 
+                                       form_data=request.form) # Pass back form data
             
             # Format phone number for WhatsApp
-            whatsapp_phone = donor_phone.replace('+', '').replace(' ', '')
-            
-            db = get_db()
-            cursor = db.cursor()
+            whatsapp_phone = donor_phone_form.replace('+', '').replace(' ', '')
             
             # Get NGO details
-            cursor.execute('SELECT name, email, phone FROM ngos WHERE id = ?', (ngo_id,))
+            cursor.execute('SELECT name, email, phone FROM ngos WHERE id = ? AND is_verified = 1', (ngo_id,))
             ngo = cursor.fetchone()
             if not ngo:
-                flash('Selected NGO not found.', 'error')
-                return redirect(url_for('donate'))
+                flash('Selected NGO not found or is not verified.', 'error')
+                cursor.execute('SELECT id, name, description FROM ngos WHERE is_verified = 1')
+                ngos_list_for_error = cursor.fetchall()
+                return render_template('donate.html', ngos=ngos_list_for_error, 
+                                       user_name=user_name, user_email=user_email, 
+                                       form_data=request.form)
             
             ngo_name, ngo_email, ngo_phone = ngo
             
             # Save donation record
             cursor.execute('''
                 INSERT INTO donations (donor_name, donor_email, donor_phone, item_name, 
-                                     item_description, item_category, ngo_id)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
-            ''', (donor_name, donor_email, donor_phone, item_name, 
-                  item_description, item_category, ngo_id))
+                                     item_description, item_category, ngo_id, user_id)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (donor_name_form, donor_email_form, donor_phone_form, item_name, 
+                  item_description, item_category, ngo_id, session['user_id']))
             
             donation_id = cursor.lastrowid
             db.commit()
@@ -733,9 +760,9 @@ def donate():
                         
                         <div style="background-color: white; padding: 20px; border-radius: 5px; margin-bottom: 20px;">
                             <h3 style="color: #2c3e50; margin-bottom: 15px;">Donor Details</h3>
-                            <p><strong>Name:</strong> {donor_name}</p>
-                            <p><strong>Email:</strong> {donor_email}</p>
-                            <p><strong>Phone:</strong> {donor_phone}</p>
+                            <p><strong>Name:</strong> {donor_name_form}</p>
+                            <p><strong>Email:</strong> {donor_email_form}</p>
+                            <p><strong>Phone:</strong> {donor_phone_form}</p>
                             <p><strong>WhatsApp:</strong> <a href="https://wa.me/{whatsapp_phone}" style="color: #25D366; text-decoration: none;">Click to chat on WhatsApp</a></p>
                         </div>
 
@@ -790,23 +817,27 @@ def donate():
             
             # Send emails
             send_email(ngo_email, f"🎁 New Donation Request: {item_name}", ngo_message)
-            send_email(donor_email, "✨ Your Donation Request has been Submitted", donor_message)
+            send_email(donor_email_form, "✨ Your Donation Request has been Submitted", donor_message)
             
             flash('Donation request submitted successfully! The NGO will contact you soon.', 'success')
-            return redirect(url_for('index'))
+            return redirect(url_for('index')) # Or perhaps redirect to profile page
             
         except Exception as e:
-            flash(f'Error: {str(e)}', 'error')
-            return redirect(url_for('donate'))
+            db.rollback() # Rollback on error
+            print(f"Error in /donate POST: {str(e)}") # Log the error
+            flash(f'Error submitting donation: {str(e)}', 'error')
+            cursor.execute('SELECT id, name, description FROM ngos WHERE is_verified = 1')
+            ngos_list_for_error = cursor.fetchall()
+            return render_template('donate.html', ngos=ngos_list_for_error, 
+                                   user_name=user_name, user_email=user_email, 
+                                   form_data=request.form)
     
     # For GET request, fetch NGOs to display in the form
-    db = get_db()
-    cursor = db.cursor()
-    cursor.execute('SELECT id, name, description FROM ngos')
-    ngos = cursor.fetchall()
-    db.close()
+    cursor.execute('SELECT id, name, description FROM ngos WHERE is_verified = 1') # Only verified NGOs
+    ngos_list = cursor.fetchall()
+    # db.close() # Let app context handle closing
     
-    return render_template('donate.html', ngos=ngos)
+    return render_template('donate.html', ngos=ngos_list, user_name=user_name, user_email=user_email)
 
 @app.route('/donation/<int:donation_id>/accept', methods=['POST'])
 def accept_donation(donation_id):
@@ -1115,30 +1146,36 @@ def profile():
         flash('Please login to view your profile.', 'error')
         return redirect(url_for('login'))
     
+    db = get_db()
+    cursor = db.cursor()
+    
     try:
-        db = get_db()
-        cursor = db.cursor()
         
         if request.method == 'POST':
             # Handle profile update
             new_username = request.form.get('username')
             new_email = request.form.get('email')
-            profile_pic = request.files.get('profile_pic')
+            profile_pic_file = request.files.get('profile_pic')
             
-            if profile_pic and profile_pic.filename:
-                if not allowed_file(profile_pic.filename):
+            user_to_update = cursor.execute('SELECT profile_picture FROM users WHERE id = ?', (session['user_id'],)).fetchone()
+            current_profile_pic_filename = user_to_update['profile_picture'] if user_to_update else None
+
+            if profile_pic_file and profile_pic_file.filename:
+                if not allowed_file(profile_pic_file.filename):
                     flash('Invalid file type. Only images are allowed.', 'error')
                     return redirect(url_for('profile'))
                 
-                filename = secure_filename(profile_pic.filename)
-                profile_pic_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                profile_pic.save(profile_pic_path)
+                original_filename = secure_filename(profile_pic_file.filename)
+                unique_filename = f"{session['user_id']}_{int(time.time())}_{original_filename}"
+                profile_pic_path = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)
+                profile_pic_file.save(profile_pic_path)
+                current_profile_pic_filename = unique_filename
                 
                 cursor.execute('''
                     UPDATE users 
-                    SET username = ?, email = ?, profile_pic = ?
+                    SET username = ?, email = ?, profile_picture = ?
                     WHERE id = ?
-                ''', (new_username, new_email, filename, session['user_id']))
+                ''', (new_username, new_email, current_profile_pic_filename, session['user_id']))
             else:
                 cursor.execute('''
                     UPDATE users 
@@ -1148,15 +1185,26 @@ def profile():
             
             db.commit()
             flash('Profile updated successfully!', 'success')
+            session['username'] = new_username 
             return redirect(url_for('profile'))
         
         # Get user details
         cursor.execute('SELECT * FROM users WHERE id = ?', (session['user_id'],))
-        user = cursor.fetchone()
+        user_row = cursor.fetchone()
         
-        if not user:
+        if not user_row:
             flash('User not found.', 'error')
-            return redirect(url_for('index'))
+            session.clear() 
+            return redirect(url_for('login'))
+        
+        user_dict = {
+            'id': user_row['id'],
+            'username': user_row['username'],
+            'email': user_row['email'],
+            'profile_pic': user_row['profile_picture'], 
+            'created_at': user_row['created_at'],
+            'is_admin': bool(user_row['is_admin'])
+        }
         
         # Get all items for sale by this user
         cursor.execute('''
@@ -1167,37 +1215,37 @@ def profile():
         ''', (session['user_id'],))
         items_for_sale = cursor.fetchall()
         
-        # Get all donations by this user (by email) only if user is not an NGO
+        # Get all donations by this user
         donations = []
-        if not user['is_admin']:  # Only show donations for regular users, not NGOs
+        if not user_dict['is_admin']: 
             cursor.execute('''
                 SELECT d.id, d.item_name, d.item_category, n.name as ngo_name, 
-                       d.status, d.created_at, d.donor_phone
+                       d.status, d.created_at, d.donor_phone, d.donor_name, d.donor_email
                 FROM donations d
                 JOIN ngos n ON d.ngo_id = n.id
-                WHERE d.donor_email = ?
+                WHERE d.user_id = ? 
                 ORDER BY d.created_at DESC
-            ''', (user[2],))
+            ''', (session['user_id'],))
             donations = cursor.fetchall()
         
-        db.close()
-        
-        user_dict = {
-            'id': user[0],
-            'username': user[1],
-            'email': user[2],
-            'created_at': user[4],
-            'profile_pic': user[5] if len(user) > 5 else None
-        }
+        total_sell = len(items_for_sale)
+        total_donation = len(donations)
         
         return render_template('profile.html', 
                              user=user_dict,
                              items_for_sale=items_for_sale,
-                             donations=donations)
+                             donations=donations,
+                             total_sell=total_sell,
+                             total_donation=total_donation)
                              
     except Exception as e:
-        flash(f'Error: {str(e)}', 'error')
+        print(f"Error in /profile: {str(e)}") 
+        flash(f'An error occurred: {str(e)}', 'error')
         return redirect(url_for('index'))
+    finally:
+        if cursor:
+            cursor.close()
+        # db connection is closed by teardown_appcontext
 
 @app.route('/donation/delete/<int:donation_id>', methods=['POST'])
 def delete_donation(donation_id):

@@ -1,79 +1,104 @@
 {% extends "base.html" %}
 
+{% block title %}Donate an Item - REthrifty{% endblock %}
+
 {% block content %}
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">
-                    <h2 class="text-center">Donate Items</h2>
-                </div>
-                <div class="card-body">
-                    {% with messages = get_flashed_messages(with_categories=true) %}
-                        {% if messages %}
-                            {% for category, message in messages %}
-                                <div class="alert alert-{{ category }}">{{ message }}</div>
-                            {% endfor %}
-                        {% endif %}
-                    {% endwith %}
+<div class="donate-container">
+    <h1>Donate an Item</h1>
+    <p class="tagline">Give your pre-loved items a second life and support a cause.</p>
 
-                    <form method="POST" action="{{ url_for('donate') }}" enctype="multipart/form-data">
-                        <h4 class="mb-4">Your Details</h4>
-                        <div class="form-group mb-3">
-                            <label for="donor-name">Full Name</label>
-                            <input type="text" class="form-control" id="donor-name" name="donor-name" required>
-                        </div>
-                        <div class="form-group mb-3">
-                            <label for="donor-email">Email Address</label>
-                            <input type="email" class="form-control" id="donor-email" name="donor-email" required>
-                        </div>
-                        <div class="form-group mb-3">
-                            <label for="donor-phone">Phone Number (with country code)</label>
-                            <input type="tel" class="form-control" id="donor-phone" name="donor-phone" 
-                                   placeholder="+91XXXXXXXXXX" required>
-                            <small class="form-text text-muted">This will be used for WhatsApp communication</small>
-                        </div>
-
-                        <h4 class="mb-4 mt-4">Item Details</h4>
-                        <div class="form-group mb-3">
-                            <label for="item-name">Item Name</label>
-                            <input type="text" class="form-control" id="item-name" name="item-name" required>
-                        </div>
-                        <div class="form-group mb-3">
-                            <label for="item-category">Category</label>
-                            <select class="form-control" id="item-category" name="item-category" required>
-                                <option value="">Select a category</option>
-                                <option value="clothes">Clothes</option>
-                                <option value="books">Books</option>
-                                <option value="electronics">Electronics</option>
-                                <option value="furniture">Furniture</option>
-                                <option value="other">Other</option>
-                            </select>
-                        </div>
-                        <div class="form-group mb-3">
-                            <label for="item-description">Description</label>
-                            <textarea class="form-control" id="item-description" name="item-description" 
-                                      rows="3" required></textarea>
-                        </div>
-
-                        <h4 class="mb-4 mt-4">Select NGO</h4>
-                        <div class="form-group mb-3">
-                            <label for="ngo">Choose an NGO</label>
-                            <select class="form-control" id="ngo" name="ngo" required>
-                                <option value="">Select an NGO</option>
-                                {% for ngo in ngos %}
-                                <option value="{{ ngo[0] }}">{{ ngo[1] }} - {{ ngo[2] }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-
-                        <div class="text-center mt-4">
-                            <button type="submit" class="btn btn-primary btn-lg">Submit Donation Request</button>
-                        </div>
-                    </form>
-                </div>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="flash-message {{ category }}">{{ message }}</div>
+                {% endfor %}
             </div>
-        </div>
-    </div>
+        {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="{{ url_for('donate') }}" class="donate-form">
+        <fieldset>
+            <legend>Your Information</legend>
+            <div class="form-group">
+                <label for="donor-name">Your Name</label>
+                <!-- {{change}} Pre-fill donor name from user_name or form_data -->
+                <input type="text" id="donor-name" name="donor-name" 
+                       value="{{ user_name if user_name else (form_data['donor-name'] if form_data else '') }}" 
+                       required 
+                       placeholder="e.g., John Doe">
+            </div>
+            <div class="form-group">
+                <label for="donor-email">Your Email</label>
+                <!-- {{change}} Pre-fill donor email from user_email or form_data -->
+                <input type="email" id="donor-email" name="donor-email" 
+                       value="{{ user_email if user_email else (form_data['donor-email'] if form_data else '') }}" 
+                       required 
+                       placeholder="e.g., john.doe@example.com">
+            </div>
+            <div class="form-group">
+                <label for="donor-phone">Your Phone Number</label>
+                <!-- {{change}} Pre-fill donor phone from form_data if available -->
+                <input type="tel" id="donor-phone" name="donor-phone" 
+                       value="{{ form_data['donor-phone'] if form_data else '' }}" 
+                       required 
+                       placeholder="e.g., +919876543210">
+            </div>
+        </fieldset>
+
+        <fieldset>
+            <legend>Item Details</legend>
+            <div class="form-group">
+                <label for="item-name">Item Name</label>
+                <!-- {{change}} Pre-fill item name from form_data if available -->
+                <input type="text" id="item-name" name="item-name" 
+                       value="{{ form_data['item-name'] if form_data else '' }}" 
+                       required 
+                       placeholder="e.g., Winter Jacket, Classic Novels">
+            </div>
+            <div class="form-group">
+                <label for="item-category">Item Category</label>
+                <select id="item-category" name="item-category" required>
+                    <option value="" disabled {{ 'selected' if not form_data or not form_data['item-category'] else '' }}>Select a category</option>
+                    <option value="Clothing" {{ 'selected' if form_data and form_data['item-category'] == 'Clothing' else '' }}>Clothing</option>
+                    <option value="Books" {{ 'selected' if form_data and form_data['item-category'] == 'Books' else '' }}>Books</option>
+                    <option value="Electronics" {{ 'selected' if form_data and form_data['item-category'] == 'Electronics' else '' }}>Electronics</option>
+                    <option value="Furniture" {{ 'selected' if form_data and form_data['item-category'] == 'Furniture' else '' }}>Furniture</option>
+                    <option value="Toys" {{ 'selected' if form_data and form_data['item-category'] == 'Toys' else '' }}>Toys</option>
+                    <option value="Home Goods" {{ 'selected' if form_data and form_data['item-category'] == 'Home Goods' else '' }}>Home Goods</option>
+                    <option value="Other" {{ 'selected' if form_data and form_data['item-category'] == 'Other' else '' }}>Other</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="item-description">Item Description</label>
+                <!-- {{change}} Pre-fill item description from form_data if available -->
+                <textarea id="item-description" name="item-description" rows="4" 
+                          placeholder="Provide details like condition, size, brand, etc.">{{ form_data['item-description'] if form_data else '' }}</textarea>
+            </div>
+        </fieldset>
+
+        <fieldset>
+            <legend>Choose NGO</legend>
+            <div class="form-group">
+                <label for="ngo">Select NGO to Donate To</label>
+                {% if ngos %}
+                    <select id="ngo" name="ngo" required>
+                        <option value="" disabled {{ 'selected' if not form_data or not form_data['ngo'] else '' }}>-- Select an NGO --</option>
+                        {% for ngo in ngos %}
+                            <option value="{{ ngo.id }}" {{ 'selected' if form_data and form_data['ngo']|int == ngo.id else '' }}>
+                                {{ ngo.name }} - {{ ngo.description|truncate(80) if ngo.description else 'No description available' }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                {% else %}
+                    <p>No verified NGOs available at the moment. Please check back later.</p>
+                {% endif %}
+            </div>
+        </fieldset>
+
+        <button type="submit" class="submit-button" {% if not ngos %}disabled{% endif %}>Submit Donation</button>
+    </form>
 </div>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='donate.css') }}">
 {% endblock %}
