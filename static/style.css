@@ -1,5 +1,7 @@
 /* style.css */
 
+* style.css */
+
 body {
   margin: 0;
   font-family: 'Montserrat', sans-serif;
@@ -74,8 +76,15 @@ body {
   font-size: 2.5rem;
   margin-bottom: 1rem;
 }
+.hero-buttons { 
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 10px; /* Add some gap between buttons */
+}
 .hero-buttons button {
-  margin: 1rem;
+  margin: 0.5rem; /* Adjust margin for better spacing when wrapped */
   padding: 0.8rem 1.5rem;
   font-size: 1rem;
   border: none;
@@ -923,6 +932,7 @@ body {
   position: sticky;
   top: 0;
   z-index: 1000;
+  width: 100%; /* {{ Add width: 100% to ensure sticky header spans full viewport width }} */
 }
 
 .logo-section {
@@ -1111,13 +1121,25 @@ body {
     margin-top: 1rem;
   }
 
-  .he {
+  .hero { 
     padding: 3rem 1rem;
   }
 
-  .he h1 {
+  .hero h1 { 
     font-size: 2rem;
   }
+
+  .hero-buttons { 
+    flex-direction: column; /* Stack buttons vertically on smaller screens */
+    align-items: stretch; /* Make buttons take full available width in column */
+  }
+
+  .hero-buttons a, 
+  .hero-buttons button {
+    width: 100%; /* Make buttons/links take full width */
+    margin: 0.5rem 0; /* Adjust margin for vertical stacking */
+  }
+
 
   .ngo-list {
     grid-template-columns: 1fr;
