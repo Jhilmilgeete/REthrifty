@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="view-items-container">
+        <h2>Items For Sale</h2>
+
+        {# Add the search/filter form here #}
+        <div class="search-filter-form">
+            <form action="{{ url_for('view') }}" method="GET">
+                <label for="item-category">Category:</label>
+                <select id="item-category" name="item-category">
+                    <option value="">All Categories</option>
+                    <option value="Books" {% if selected_category == 'Books' %}selected{% endif %}>Books</option>
+                    <option value="Clothes" {% if selected_category == 'Clothes' %}selected{% endif %}>Clothes</option>
+                    <option value="Household Items" {% if selected_category == 'Household Items' %}selected{% endif %}>Household Items</option>
+                    <option value="Accessories" {% if selected_category == 'Accessories' %}selected{% endif %}>Accessories</option>
+                </select>
+
+                <label for="location">Location:</label>
+                <input type="text" id="location" name="location" value="{{ selected_location }}">
+
+                <button type="submit">Search</button>
+            </form>
+        </div>
+
+        {# Display "No items found" message if items list is empty #}
+        {% if not items %}
+            <p>No items found matching your criteria.</p>
+        {% endif %}
+
+        <div class="items-grid"> {# <--- INLINE STYLES REMOVED HERE #}
+            {% for item in items %}
+            <div class="item-card">
+                {# --- MODIFIED IMAGE LOGIC --- #}
+                {# Determine the correct image path #}
+                {% set image_to_display = 'images/' + item.image_filename if item.image_filename else ('images/clothes_placeholder.png' if item.category == 'Clothes' else 'images/placeholder.png') %}
+                {# Display the image #}
+                <img src="{{ url_for('static', filename=image_to_display) }}" alt="{{ item.name }}">
+                {# --- END MODIFIED IMAGE LOGIC --- #}
+
+                <h3>{{ item.name }}</h3>
+                <p>Category: {{ item.category }}</p>
+                <p>Price: {{ item.price }}</p>
+                <p>Location: {{ item.location }}</p>
+                <a href="{{ url_for('item_details', item_id=item.id) }}" class="view-details-btn">View Details</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/view_items.css') }}">
+{% endblock %}

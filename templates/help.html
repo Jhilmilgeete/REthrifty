@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}Help Center - REthrifty{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Help Center - REthrifty</h1>
+    <input type="text" id="searchBar" placeholder="Search help topics...">
+
+    <div class="faq-section">
+        <button class="collapsible">Getting Started</button>
+        <div class="content">
+            <h3>What is REthrifty?</h3>
+            <p>REthrifty is a platform where users can buy, sell, and donate pre-owned items, including clothes, books, and more. Our goal is to promote sustainable shopping and reduce waste.</p>
+        </div>
+
+        <button class="collapsible">Buying on REthrifty</button>
+        <div class="content">
+            <h3>How to Search for Items</h3>
+            <p>Use the search bar or browse categories to find items of interest.</p>
+            <h3>Payment Methods Accepted</h3>
+            <p>We accept credit/debit cards, UPI, PayPal, and wallet payments. Ensure your payment details are up-to-date in your account settings.</p>
+            <h3>Refund & Return Policy</h3>
+            <p>All purchases are final unless the seller provides a return option. Contact the seller directly for refunds or exchanges.</p>
+        </div>
+
+        <button class="collapsible">Selling on REthrifty</button>
+        <div class="content">
+            <h3>How to List an Item for Sale</h3>
+            <p>Click <strong>Sell an Item</strong>, upload photos, add descriptions, and set a price.</p>
+            <h3>Seller Guidelines</h3>
+            <p>Ensure your items are in good condition. Provide clear descriptions and set fair prices.</p>
+            <h3>How Do I Receive Payments?</h3>
+            <p>Payments are sent to your registered bank account after successful transactions.</p>
+        </div>
+
+        <button class="collapsible">Donating on REthrifty</button>
+        <div class="content">
+            <h3>How Can I Donate Items?</h3>
+            <p>Go to the <strong>Donate</strong> section, select items you wish to donate, and choose a nearby charity or recipient.</p>
+            <h3>What Items Can I Donate?</h3>
+            <p>We accept gently used clothes, books, accessories, and other household items.</p>
+        </div>
+
+        <button class="collapsible">Account Management</button>
+        <div class="content">
+            <h3>How to Create an Account</h3>
+            <p>Click <strong>Sign Up</strong>, enter your details, and verify your email to get started.</p>
+            <h3>How to Reset My Password?</h3>
+            <p>Go to <strong>Forgot Password</strong> and enter your registered email to reset your password.</p>
+            <h3>How to Delete My Account?</h3>
+            <p>Contact our support team if you wish to delete your account permanently.</p>
+        </div>
+
+        <button class="collapsible">Safety & Security</button>
+        <div class="content">
+            <h3>How Do I Stay Safe While Buying/Selling?</h3>
+            <p>Always communicate within REthrifty's chat system and avoid direct payments outside the platform.</p>
+            <h3>How Can I Report a Suspicious Listing?</h3>
+            <p>Click on the <strong>Report</strong> button next to the listing and provide details.</p>
+        </div>
+    </div>
+</div>
+
+<button id="scrollTopBtn">↑</button>
+
+<script src="{{ url_for('static', filename='js/helpscript.js') }}"></script>
+{% endblock %}
+
+
+     <!-- Footer -->
+  <footer class="footer" id="contact">
+    <div class="footer-container">
+      <div class="footer-box">
+        <h2>REthrifty</h2>
+        <p>Empowering sustainability through secondhand love.</p>
+      </div>
+      <div class="footer-box">
+        <h2>Quick Links</h2>
+        <ul>
+          <li><a href="#categories">Categories</a></li>
+          <li><a href="{{ url_for('donate') }}">Donate</a></li>
+        </ul>
+      </div>
+      <div class="footer-box">
+        <h2>Customer Support</h2>
+        <ul>
+          <li><a href="{{ url_for('terms') }}">Terms & Conditions</a></li>
+          <li><a href="{{ url_for('help') }}">Help Center</a></li>
+        </ul>
+      </div>
+      <div class="footer-box">
+        <h2>Contact Info</h2>
+        <p>Email: support@rethrifty.com</p>
+        <p>Phone: +91 9876543210</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      &copy; 2025 REthrifty. All rights reserved.
+    </div>
+  </footer>
+  </body>
+  </html>
+  

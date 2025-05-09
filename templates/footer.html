@@ -1,0 +1,183 @@
+<footer class="footer">
+    <div class="footer-container">
+        <div class="footer-section">
+            <div class="footer-brand">
+                <img src="{{ url_for('static', filename='images/rethrift_icon.png') }}" alt="REthrifty Logo" class="footer-logo">
+                <p class="footer-description">Empowering sustainability through secondhand love.</p>
+            </div>
+        </div>
+
+        <div class="footer-section">
+            <h3 class="footer-title">Quick Links</h3>
+            <ul class="footer-links">
+                <li><a href="{{ url_for('index') }}" class="footer-link">Home</a></li>
+                <li><a href="{{ url_for('sell') }}" class="footer-link">Sell</a></li>
+                <li><a href="{{ url_for('donate') }}" class="footer-link">Donate</a></li>
+                <li><a href="{{ url_for('about') }}" class="footer-link">About</a></li>
+                <li><a href="{{ url_for('help') }}" class="footer-link">Help</a></li>
+            </ul>
+        </div>
+
+        <div class="footer-section">
+            <h3 class="footer-title">Contact Us</h3>
+            <ul class="footer-contact">
+                <li><i class="fas fa-envelope"></i> support@rethrifty.com</li>
+                <li><i class="fas fa-phone"></i> +91 9876543210</li>
+                <li><i class="fas fa-map-marker-alt"></i> 123 Street, City, Country</li>
+            </ul>
+        </div>
+
+        <div class="footer-section">
+            <h3 class="footer-title">Follow Us</h3>
+            <div class="social-links">
+                <a href="#" class="social-link"><i class="fab fa-facebook"></i></a>
+                <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+                <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+                <a href="#" class="social-link"><i class="fab fa-linkedin"></i></a>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer-bottom">
+        <p>&copy; 2024 REthrifty. All rights reserved.</p>
+    </div>
+</footer>
+
+<style>
+    :root {
+        --footer-bg: #1a2c1a;
+        --footer-text: #ffffff;
+        --footer-link: #8bc34a;
+        --footer-hover: #ffffff;
+        --footer-border: #2e3d2f;
+    }
+
+    .footer {
+        background: var(--footer-bg);
+        color: var(--footer-text);
+        padding: 3rem 0 0;
+        margin-top: 3rem;
+    }
+
+    .footer-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 2rem;
+        display: grid;
+        grid-template-columns: repeat(1, 1fr);
+        gap: 2rem;
+    }
+
+    .footer-section {
+        padding: 1rem;
+    }
+
+    .footer-brand {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .footer-logo {
+        height: 50px;
+        width: auto;
+    }
+
+    .footer-description {
+        color: var(--footer-link);
+        font-size: 1rem;
+        line-height: 1.5;
+        max-width: 300px;
+    }
+
+    .footer-title {
+        font-size: 1.2rem;
+        margin-bottom: 1.5rem;
+        color: var(--footer-text);
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 600;
+    }
+
+    .footer-links,
+    .footer-contact {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .footer-link,
+    .footer-contact li {
+        color: var(--footer-link);
+        text-decoration: none;
+        margin-bottom: 0.8rem;
+        display: block;
+        transition: all 0.3s ease;
+    }
+
+    .footer-link:hover {
+        color: var(--footer-hover);
+        transform: translateX(5px);
+    }
+
+    .footer-contact li {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+    }
+
+    .footer-contact li i {
+        color: var(--footer-link);
+    }
+
+    .social-links {
+        display: flex;
+        gap: 1.5rem;
+    }
+
+    .social-link {
+        color: var(--footer-link);
+        font-size: 1.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .social-link:hover {
+        color: var(--footer-hover);
+        transform: translateY(-3px);
+    }
+
+    .footer-bottom {
+        text-align: center;
+        padding: 1.5rem;
+        margin-top: 2rem;
+        border-top: 1px solid var(--footer-border);
+        color: var(--footer-link);
+        font-size: 0.9rem;
+    }
+
+    @media (min-width: 576px) {
+        .footer-container {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (min-width: 768px) {
+        .footer-container {
+            grid-template-columns: repeat(4, 1fr);
+        }
+
+        .footer-brand {
+            align-items: flex-start;
+        }
+    }
+
+    @media (min-width: 992px) {
+        .footer {
+            padding: 4rem 0 0;
+        }
+
+        .footer-container {
+            padding: 0 3rem;
+        }
+    }
+</style> 

@@ -1,0 +1,342 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="hero">
+    <h1>Reduce. Reuse. Rethrift.</h1>
+    <p>Buy, sell, or donate pre-loved clothes, books, and more — all in one eco-friendly platform.</p>
+    <div class="hero-buttons">
+        <a href="{{ url_for('view') }}">  
+        <button>Browse Items</button></a>
+        <a href="{{url_for('donate') }}">      
+        <button class="donate-btn">Donate Items</button></a>
+        <a href="{{ url_for('ngo_list') }}">
+        <button class="ngo-btn">NGO</button></a>
+    </div>
+</section>
+
+<section class="categories" id="categories">
+    <h2>Categories</h2>
+    <div class="category-cards">
+        <a href="{{ url_for('view', category='Clothes') }}" class="category-card">
+            <img src="{{ url_for('static', filename='images/store-clothes-clothing-line-fashion-wallpaper (1).jpg') }}" alt="Clothes">
+            <h3>Clothes</h3>
+            <p>Find pre-loved clothing items</p>
+        </a>
+        <a href="{{ url_for('view', category='Books') }}" class="category-card">
+            <img src="{{ url_for('static', filename='images/stack-spines-bbooks.webp') }}" alt="Books">
+            <h3>Books</h3>
+            <p>Discover second-hand books</p>
+        </a>
+        <a href="{{ url_for('view', category='Accessories') }}" class="category-card">
+            <img src="{{ url_for('static', filename='images/accesories.jpeg') }}" alt="Accessories">
+            <h3>Accessories</h3>
+            <p>Shop for unique accessories</p>
+        </a>
+    </div>
+</section>
+
+<section class="item-listing" id="listings">
+    <h2>Latest Listings</h2>
+    <div class="items">
+        {% if latest_items %}
+            {% for item in latest_items %}
+                <div class="item-card">
+                    {% if item[4] %}
+                        <img src="{{ url_for('static', filename='images/' + item[4]) }}" 
+                             alt="{{ item[1] }}" 
+                             onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/placeholder.png') }}';">
+                    {% else %}
+                        <img src="{{ url_for('static', filename='images/placeholder.png') }}" alt="No image available">
+                    {% endif %}
+                    <div class="item-details">
+                        <h4>{{ item[1] }}</h4>
+                        <p>₹{{ "%.2f"|format(item[7]) if item[7] else 'Free' }}</p>
+                        {% if session.get('user_id') %}
+                            <a href="{{ url_for('item_details', item_id=item[0]) }}" class="buy-btn">View Details</a>
+                        {% else %}
+                            <a href="{{ url_for('login') }}" class="buy-btn">Login to View</a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="no-items">
+                <p>No items available at the moment.</p>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<section class="why-choose-us">
+    <h2>Why Choose REthrifty?</h2>
+    <div class="reason-cards">
+        <div class="reason-card">
+            <i class="fas fa-leaf fa-3x"></i>
+            <p>Help the planet by reducing waste and promoting reuse.</p>
+        </div>
+        <div class="reason-card">
+            <i class="fas fa-tag fa-3x"></i>
+            <p>Affordable items that don't break the bank.</p>
+        </div>
+        <div class="reason-card">
+            <i class="fas fa-headset fa-3x"></i>
+            <p>Friendly support to help you anytime.</p>
+        </div>
+    </div>
+</section>
+
+<section class="testimonials">
+    <h2>What Our Users Say</h2>
+    <div class="testimonial-cards">
+        <div class="testimonial-card">
+            <i class="fas fa-quote-left"></i>
+            <p>"REthrifty helped me declutter my room and contribute to a good cause! The process was smooth and the team was very supportive."</p>
+            <div class="user-info">
+                <span class="user-name">- Priya Sharma</span>
+                <span class="user-location">Mumbai</span>
+            </div>
+        </div>
+        <div class="testimonial-card">
+            <i class="fas fa-quote-left"></i>
+            <p>"Amazing platform! I love how eco-conscious and simple it is. Found some great books at affordable prices."</p>
+            <div class="user-info">
+                <span class="user-name">- Rahul Patel</span>
+                <span class="user-location">Delhi</span>
+            </div>
+        </div>
+        <div class="testimonial-card">
+            <i class="fas fa-quote-left"></i>
+            <p>"The best place to find pre-loved items! I've both bought and sold items here, and the experience has been fantastic every time."</p>
+            <div class="user-info">
+                <span class="user-name">- Ananya Singh</span>
+                <span class="user-location">Bangalore</span>
+            </div>
+        </div>
+        <div class="testimonial-card">
+            <i class="fas fa-quote-left"></i>
+            <p>"As a student, REthrifty has been a lifesaver. I can find quality items at reasonable prices while supporting sustainability."</p>
+            <div class="user-info">
+                <span class="user-name">- Vikram Mehta</span>
+                <span class="user-location">Chennai</span>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .item-listing {
+        padding: 2rem 0;
+    }
+    
+    .item-listing h2 {
+        text-align: center;
+        color: #2c3e50;
+        margin-bottom: 2rem;
+        font-size: 2rem;
+    }
+    
+    .items {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 2rem;
+        justify-content: center;
+        padding: 0 1rem;
+    }
+    
+    .item-card {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        overflow: hidden;
+        width: 280px;
+        transition: transform 0.3s ease;
+    }
+    
+    .item-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .item-card img {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+    }
+    
+    .item-details {
+        padding: 1rem;
+    }
+    
+    .item-details h4 {
+        margin: 0 0 0.5rem 0;
+        color: #2c3e50;
+        font-size: 1.2rem;
+    }
+    
+    .item-details p {
+        margin: 0 0 1rem 0;
+        color: #4CAF50;
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+    
+    .buy-btn {
+        display: inline-block;
+        width: 100%;
+        padding: 0.8rem;
+        background: #4CAF50;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        text-align: center;
+        font-weight: 600;
+        transition: background 0.3s;
+    }
+    
+    .buy-btn:hover {
+        background: #388e3c;
+    }
+    
+    .no-items {
+        text-align: center;
+        padding: 2rem;
+        color: #666;
+        font-size: 1.2rem;
+    }
+    
+    .category-cards {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        flex-wrap: wrap;
+    }
+    
+    .category-card {
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        padding: 1rem;
+        max-width: 250px;
+        text-decoration: none;
+        color: inherit;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .category-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    }
+    
+    .category-card img {
+        width: 100%;
+        border-radius: 6px;
+        object-fit: cover;
+        height: 160px;
+    }
+    
+    .category-card h3 {
+        margin: 1rem 0 0.5rem;
+        color: #2c3e50;
+    }
+    
+    .category-card p {
+        color: #7f8c8d;
+        margin: 0;
+    }
+    
+    .why-choose-us {
+        padding: 3rem 2rem;
+        text-align: center;
+        background-color: #f8f9fa;
+    }
+    
+    .reason-cards {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        flex-wrap: wrap;
+    }
+    
+    .reason-card {
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        padding: 2rem;
+        max-width: 300px;
+        transition: transform 0.3s ease;
+    }
+    
+    .reason-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .reason-card i {
+        color: #4CAF50;
+        margin-bottom: 1rem;
+    }
+    
+    .reason-card p {
+        color: #666;
+        margin: 0;
+        font-size: 1.1rem;
+    }
+    
+    .testimonials {
+        padding: 3rem 2rem;
+        background-color: #f8f9fa;
+    }
+    
+    .testimonial-cards {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        flex-wrap: wrap;
+    }
+    
+    .testimonial-card {
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        padding: 1.5rem;
+        max-width: 300px;
+        position: relative;
+        height: 220px;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .testimonial-card i {
+        color: #4CAF50;
+        font-size: 1.2rem;
+        margin-bottom: 0.8rem;
+    }
+    
+    .testimonial-card p {
+        color: #666;
+        font-style: italic;
+        margin-bottom: 1rem;
+        line-height: 1.4;
+        font-size: 0.95rem;
+    }
+    
+    .user-info {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        margin-top: auto;
+    }
+    
+    .user-name {
+        font-weight: 600;
+        color: #2c3e50;
+        font-size: 0.9rem;
+    }
+    
+    .user-location {
+        color: #7f8c8d;
+        font-size: 0.8rem;
+    }
+</style>
+{% endblock %}
+  

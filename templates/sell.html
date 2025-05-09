@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="form-container">
+        <h3>Sell Items</h3>
+        <form id="sell-form" action="{{ url_for('sell') }}" method="POST" enctype="multipart/form-data">
+            <label for="item-name">Item Name:</label>
+            <input type="text" id="item-name" name="item-name" required>
+
+            <label for="item-price">Minimum Price (₹):</label>
+            <input type="number" id="item-price" name="item-price" min="0" step="0.01" required>
+
+            <label for="item-category">Category:</label>
+            <select id="item-category" name="item-category">
+                <option value="Books">Books</option>
+                <option value="Clothes">Clothes</option>
+                <option value="Household Items">Household Items</option>
+                <option value="Accessories">Accessories</option>
+            </select>
+
+            <label for="item-description">Description:</label>
+            <textarea id="item-description" name="item-description" required></textarea>
+
+            <label for="item-image">Item Image:</label>
+            <input type="file" id="item-image" name="item-image" accept="image/*">
+
+            <label for="location">Location:</label>
+            <input type="text" id="location" name="location" required>
+
+            <label for="contact-number">Contact Number:</label>
+            <div class="phone-input">
+                <select id="country-code" name="country-code" required>
+                    <option value="91">+91 (India)</option>
+                    <option value="1">+1 (USA)</option>
+                    <option value="44">+44 (UK)</option>
+                </select>
+                <input type="tel" id="contact-number" name="contact-number" required>
+            </div>
+
+            <button type="submit">List Item</button>
+        </form>
+    </div>
+{% endblock %}
+
+{% block extra_css %}
+    <style>
+        .form-container {
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+        }
+
+        .form-container h3 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 2rem;
+            font-size: 1.8rem;
+        }
+
+        .form-container label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #2c3e50;
+            font-weight: 500;
+        }
+
+        .form-container input,
+        .form-container select,
+        .form-container textarea {
+            width: 100%;
+            padding: 0.8rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        .form-container textarea {
+            height: 120px;
+            resize: vertical;
+        }
+
+        .phone-input {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .phone-input select {
+            width: 120px;
+        }
+
+        .phone-input input {
+            flex: 1;
+        }
+
+        .form-container button {
+            width: 100%;
+            padding: 1rem;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .form-container button:hover {
+            background: #388e3c;
+        }
+    </style>
+{% endblock %}

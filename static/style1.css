@@ -1,0 +1,238 @@
+/* General Styles */
+body {
+    margin: 0;
+    font-family: 'Montserrat', sans-serif;
+    background-color: #f0f5f1;
+    color: #2e3d2f;
+}
+
+/* Header Styles */
+.header {
+    width: 100%;
+    padding: 15px 30px;
+    background-color: #2e3d2f;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: fixed;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.logo-section {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logo-section img {
+    border-radius: 50%;
+}
+
+.brand-name {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: white;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.nav-links a {
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.nav-links a:hover {
+    color: #c8e6c9;
+}
+
+/* Hero Section */
+.he {
+    margin-top: 80px;
+    text-align: center;
+    padding: 40px 20px;
+    background-color: #2e3d2f;
+    color: white;
+}
+
+.he h1 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+}
+
+.he p {
+    font-size: 1.2rem;
+    opacity: 0.9;
+}
+
+/* NGO List Grid */
+.ngo-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    padding: 40px 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* NGO Card Styles */
+.ngo-card {
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.ngo-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+
+.ngo-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+.ngo-card h3 {
+    padding: 15px 20px 5px;
+    margin: 0;
+    color: #2e3d2f;
+    font-size: 1.3rem;
+}
+
+.ngo-card p {
+    padding: 0 20px;
+    margin: 5px 0;
+    color: #666;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.ngo-card p strong {
+    color: #2e3d2f;
+}
+
+/* Donate Button */
+.donate-btn {
+    display: inline-block;
+    background-color: #692524;
+    color: white;
+    padding: 10px 20px;
+    margin: 15px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.donate-btn:hover {
+    background-color: #8b3434;
+}
+
+/* Join NGO Button */
+.join-ngo-btn {
+    background-color: #692524;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.join-ngo-btn:hover {
+    background-color: #8b3434;
+    color: white;
+    text-decoration: none;
+}
+
+/* Footer Styles */
+.footer {
+    background-color: #2e3d2f;
+    color: white;
+    padding: 40px 20px;
+    margin-top: 40px;
+}
+
+.footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 30px;
+}
+
+.footer-box h2 {
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+    color: #c8e6c9;
+}
+
+.footer-box p, .footer-box ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.footer-box a {
+    color: white;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.footer-box a:hover {
+    color: #c8e6c9;
+}
+
+.footer-bottom {
+    text-align: center;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .header {
+        flex-direction: column;
+        padding: 15px;
+    }
+
+    .nav-links {
+        margin-top: 15px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .he {
+        margin-top: 140px;
+    }
+
+    .ngo-list {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .he h1 {
+        font-size: 2rem;
+    }
+
+    .he p {
+        font-size: 1rem;
+    }
+
+    .ngo-card h3 {
+        font-size: 1.1rem;
+    }
+} 

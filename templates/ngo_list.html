@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+
+{% block title %}Donate to NGOs - REthrifty{% endblock %}
+
+{% block content %}
+<div class="ngo-list-container">
+    <div class="ngo-list-header">
+        <h1>Our Partner NGOs</h1>
+        <a href="{{ url_for('join_ngo') }}" class="join-ngo-btn">
+            <i class="fas fa-handshake"></i> Join as NGO
+        </a>
+    </div>
+    
+    <div class="ngo-grid">
+        {% for ngo in ngos %}
+        <div class="ngo-card">
+            <div class="ngo-image">
+                {% if ngo['logo'] %}
+                    <img src="{{ url_for('static', filename='images/' + ngo['logo']) }}" alt="{{ ngo['name'] }} logo">
+                {% else %}
+                    <img src="{{ url_for('static', filename='images/placeholder.png') }}" alt="No image available">
+                {% endif %}
+            </div>
+            <div class="ngo-info">
+                <h2>{{ ngo['name'] }}</h2>
+                <p class="ngo-description">{{ ngo['description'] }}</p>
+                <p class="ngo-location"><i class="fas fa-map-marker-alt"></i> {{ ngo['address'] }}</p>
+                <a href="{{ url_for('donate', ngo_id=ngo['id']) }}" class="donate-btn">
+                    <i class="fas fa-heart"></i> Donate Now
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* General Container */
+    .ngo-list-container {
+        max-width: 1000px; /* Reduce max-width */
+        margin: 2rem auto;
+        padding: 2rem; /* Add padding to the container */
+        background-color: #f9f9f9; /* Light gray background */
+        border-radius: 15px; /* Rounded corners */
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); /* Softer shadow */
+    }
+
+    /* Header with Title and Button */
+    .ngo-list-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 2px solid #eee; /* Lighter border */
+    }
+
+    .ngo-list-header h1 {
+        font-size: 2.2rem; /* Larger title */
+        color: #333; /* Darker text */
+        font-weight: 600; /* Semi-bold */
+        margin: 0;
+    }
+
+    /* Improved Button Style */
+    .join-ngo-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem 2rem;
+        background-color: #28a745; /* Bootstrap success color */
+        color: #fff;
+        font-size: 1.1rem;
+        font-weight: 500;
+        text-decoration: none;
+        border-radius: 0.375rem; /* Bootstrap rounded corner */
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.1); /* Bootstrap shadow */
+        transition: all 0.2s ease-in-out;
+    }
+
+    .join-ngo-btn:hover {
+        background-color: #218838; /* Darken on hover */
+        box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.2); /* Stronger shadow on hover */
+        transform: translateY(-2px); /* Slight lift on hover */
+    }
+
+    /* Enhanced NGO Card Styling */
+    .ngo-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); /* Slightly wider cards */
+        gap: 2.5rem;
+    }
+
+    .ngo-card {
+        background: #fff;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* More subtle shadow */
+        transition: transform 0.2s ease-in-out;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .ngo-card:hover {
+        transform: translateY(-4px);
+    }
+
+    .ngo-image {
+        height: 240px; /* Increase image height */
+        overflow: hidden;
+    }
+
+    .ngo-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease-out; /* Smooth zoom effect */
+    }
+
+    .ngo-card:hover .ngo-image img {
+        transform: scale(1.05); /* Slight zoom on hover */
+    }
+
+    .ngo-info {
+        padding: 1.75rem; /* Increase padding */
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .ngo-info h2 {
+        margin: 0 0 1.25rem 0;
+        color: #333;
+        font-size: 1.75rem;
+        font-weight: 600;
+    }
+
+    .ngo-description {
+        color: #555;
+        margin-bottom: 1.5rem;
+        line-height: 1.6;
+        flex: 1;
+    }
+
+    .ngo-location {
+        color: #777;
+        margin-bottom: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.625rem;
+        font-size: 0.9rem;
+    }
+
+    .ngo-location i {
+        color: #5cb85c;
+    }
+
+    .donate-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.625rem;
+        padding: 1rem 2rem;
+        background-color: #5cb85c;
+        color: #fff;
+        text-decoration: none;
+        border-radius: 0.375rem;
+        font-weight: 500;
+        transition: all 0.2s ease-in-out;
+        margin-top: auto;
+        font-size: 1rem;
+    }
+
+    .donate-btn:hover {
+        background-color: #4cae4c;
+        transform: translateY(-2px);
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+        .ngo-list-header {
+            flex-direction: column;
+            gap: 1.25rem;
+            text-align: center;
+        }
+
+        .ngo-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}

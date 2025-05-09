@@ -1,0 +1,262 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8">
+            <h1 class="mb-4">NGOs on REthrifty</h1>
+            <p class="lead">Join our network of NGOs working towards a sustainable future.</p>
+            
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="card-title">Why Join as an NGO?</h2>
+                    <ul class="list-unstyled">
+                        <li class="mb-2">✓ Connect with donors directly</li>
+                        <li class="mb-2">✓ Receive donations in real-time</li>
+                        <li class="mb-2">✓ Expand your reach</li>
+                        <li class="mb-2">✓ Build trust with donors</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title">Our Partner NGOs</h2>
+                    <div class="partner-ngos">
+                        {% for ngo in ngos %}
+                        <div class="partner-ngo-card">
+                            <div class="partner-ngo-image">
+                                {% if ngo[6] %}
+                                    <img src="{{ url_for('static', filename='images/' + ngo[6]) }}" alt="{{ ngo[1] }} logo">
+                                {% else %}
+                                    <img src="{{ url_for('static', filename='images/placeholder.png') }}" alt="No image available">
+                                {% endif %}
+                                </div>
+                            <div class="partner-ngo-info">
+                                <h3>{{ ngo[1] }}</h3>
+                                <p>{{ ngo[5] }}</p>
+                                <p class="location"><i class="fas fa-map-marker-alt"></i> {{ ngo[4] }}</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="text-center">Join as NGO</h2>
+                </div>
+                <div class="card-body">
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }}">{{ message }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+
+                    <form method="POST" enctype="multipart/form-data" class="ngo-form">
+                        {% if not show_otp %}
+                        <div class="form-group">
+                            <label for="name">NGO Name</label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="phone">Phone Number</label>
+                            <input type="tel" id="phone" name="phone" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="address">Address</label>
+                            <textarea id="address" name="address" required></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="description">Description</label>
+                            <textarea id="description" name="description"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="logo">NGO Logo/Image</label>
+                            <input type="file" id="logo" name="logo" accept="image/*">
+                            <small>Upload your NGO's logo or representative image (JPG, PNG)</small>
+                        </div>
+                        
+                        <button type="submit" class="submit-btn">Send OTP</button>
+                        {% else %}
+                        <div class="form-group">
+                            <label for="otp">Enter OTP</label>
+                            <input type="text" id="otp" name="otp" required>
+                            <input type="hidden" name="email" value="{{ email }}">
+                        </div>
+                        
+                        <button type="submit" class="submit-btn">Verify & Register</button>
+                        {% endif %}
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .card {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+
+    .card-body {
+        padding: 1.5rem;
+    }
+
+    .card-title {
+        color: #2c3e50;
+        margin-bottom: 1.5rem;
+    }
+
+    .list-unstyled li {
+        color: #34495e;
+        font-size: 1.1rem;
+    }
+
+    .partner-ngos {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .partner-ngo-card {
+        display: flex;
+        flex-direction: column;
+        background: #f8f9fa;
+        border-radius: 8px;
+        overflow: hidden;
+        transition: transform 0.3s;
+    }
+
+    .partner-ngo-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .partner-ngo-image {
+        height: 180px;
+        overflow: hidden;
+    }
+
+    .partner-ngo-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .partner-ngo-info {
+        padding: 1rem;
+    }
+
+    .partner-ngo-info h3 {
+        color: #2c3e50;
+        margin: 0 0 0.5rem 0;
+        font-size: 1.2rem;
+    }
+
+    .partner-ngo-info p {
+        color: #666;
+        margin: 0.5rem 0;
+        font-size: 0.95rem;
+        line-height: 1.4;
+    }
+
+    .partner-ngo-info .location {
+        color: #555;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .partner-ngo-info .location i {
+        color: #4CAF50;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: #2c3e50;
+        font-weight: 500;
+    }
+
+    .form-group input[type="text"],
+    .form-group input[type="email"],
+    .form-group input[type="tel"],
+    .form-group input[type="file"],
+    .form-group textarea {
+        width: 100%;
+        padding: 0.8rem;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 1rem;
+    }
+
+    .form-group textarea {
+        height: 100px;
+        resize: vertical;
+    }
+
+    .form-group small {
+        display: block;
+        margin-top: 0.5rem;
+        color: #666;
+        font-size: 0.9rem;
+    }
+
+    .submit-btn {
+        width: 100%;
+        padding: 1rem;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .submit-btn:hover {
+        background-color: #388e3c;
+    }
+
+    @media (max-width: 768px) {
+        .container {
+            padding: 1rem;
+        }
+
+        .partner-ngos {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
