@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+* style.css */
+>>>>>>> 39c4515ded846f8b80ca1a96717b64c5a9c7929c
 /* Base styles - Mobile First */
 :root {
     --min-font-size: 1rem;
@@ -636,4 +640,8 @@ header {
 .view-item-actions,
 .meta-item {
     transition: all 0.3s ease-in-out;
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 39c4515ded846f8b80ca1a96717b64c5a9c7929c

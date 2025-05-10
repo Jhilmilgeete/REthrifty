@@ -4,6 +4,10 @@
     padding: 20px;
     background-color: #f9f9f9;
     border-radius: 8px;
+    width: 100%; /* Explicitly set width to 100% of its containing block (up to max-width) */
+    /* If main is display:flex, align-self might be needed if align-items:center is problematic */
+    align-self: stretch; /* If parent is flex, allow it to stretch to full cross-axis size */
+    box-sizing: border-box; /* Ensure padding/border don't add to max-width issue */
 }
 
 .search-filter-form {
@@ -39,9 +43,11 @@
 }
 
 .items-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)) !important;
+    gap: 20px !important;
+    width: 100% !important; /* Ensure the grid container itself tries to take full width of its parent */
+    box-sizing: border-box !important; /* Just in case padding/border is affecting width calculation */
 }
 
 .item-card {
@@ -49,6 +55,8 @@
     border-radius: 8px;
     padding: 15px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    width: 100% !important; /* Force item cards to take full width of their grid cell */
+    box-sizing: border-box !important;
 }
 
 .item-card img {

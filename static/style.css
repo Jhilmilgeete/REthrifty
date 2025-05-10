@@ -1,5 +1,10 @@
 /* style.css */
 
+<<<<<<< HEAD
+=======
+* style.css */
+
+>>>>>>> 39c4515ded846f8b80ca1a96717b64c5a9c7929c
 body {
   margin: 0;
   font-family: 'Montserrat', sans-serif;
@@ -74,8 +79,20 @@ body {
   font-size: 2.5rem;
   margin-bottom: 1rem;
 }
+<<<<<<< HEAD
 .hero-buttons button {
   margin: 1rem;
+=======
+.hero-buttons { 
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 10px; /* Add some gap between buttons */
+}
+.hero-buttons button {
+  margin: 0.5rem; /* Adjust margin for better spacing when wrapped */
+>>>>>>> 39c4515ded846f8b80ca1a96717b64c5a9c7929c
   padding: 0.8rem 1.5rem;
   font-size: 1rem;
   border: none;
@@ -121,9 +138,13 @@ h2 {
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
   padding: 1rem;
+<<<<<<< HEAD
   /* max-width: 250px; */ /* <-- Commented out or removed this line */
   width: 100%; /* <-- Added this to allow it to fill its container cell */
   /* Ensure item-card specifically allows for dynamic width if used in a grid */
+=======
+  max-width: 250px;
+>>>>>>> 39c4515ded846f8b80ca1a96717b64c5a9c7929c
 }
 
 .category-card img, .item-card img, .reason-card img {
@@ -357,9 +378,15 @@ a {
 /* Main Content Center */
 main {
   flex: 1;
+<<<<<<< HEAD
   display: flex;
   justify-content: center;
   align-items: center;
+=======
+  /* display: flex; */
+  /* justify-content: center; */
+  /* align-items: center; */
+>>>>>>> 39c4515ded846f8b80ca1a96717b64c5a9c7929c
 }
 
 /* Login Box */
@@ -427,11 +454,19 @@ main {
 
 /* Donation Center the form container */
 main {
+<<<<<<< HEAD
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   min-height: 80vh;
+=======
+  /* display: flex; */
+  /* flex-direction: column; */
+  /* align-items: center; */
+  /* justify-content: center; */
+  min-height: 80vh; /* This might still be relevant for some pages */
+>>>>>>> 39c4515ded846f8b80ca1a96717b64c5a9c7929c
 }
 
 h2 {
@@ -570,13 +605,20 @@ body {
 
 .product {
   background-color: white;
+<<<<<<< HEAD
   /* width: 300px; */ /* <-- If this .product class is used on the view_items.html page, this could also be an issue. For now, let's focus on the .item-card from earlier. */
+=======
+  width: 300px;
+>>>>>>> 39c4515ded846f8b80ca1a96717b64c5a9c7929c
   padding: 20px;
   margin: 15px;
   border-radius: 5px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   text-align: center;
+<<<<<<< HEAD
    width: 100%; /* If .product is used on the buy page, this should also be 100% */
+=======
+>>>>>>> 39c4515ded846f8b80ca1a96717b64c5a9c7929c
 }
 
 .product img {
@@ -926,6 +968,10 @@ body {
   position: sticky;
   top: 0;
   z-index: 1000;
+<<<<<<< HEAD
+=======
+  width: 100%; /* {{ Add width: 100% to ensure sticky header spans full viewport width }} */
+>>>>>>> 39c4515ded846f8b80ca1a96717b64c5a9c7929c
 }
 
 .logo-section {
@@ -1114,6 +1160,7 @@ body {
     margin-top: 1rem;
   }
 
+<<<<<<< HEAD
   .he {
     padding: 3rem 1rem;
   }
@@ -1122,11 +1169,34 @@ body {
     font-size: 2rem;
   }
 
+=======
+  .hero { 
+    padding: 3rem 1rem;
+  }
+
+  .hero h1 { 
+    font-size: 2rem;
+  }
+
+  .hero-buttons { 
+    flex-direction: column; /* Stack buttons vertically on smaller screens */
+    align-items: stretch; /* Make buttons take full available width in column */
+  }
+
+  .hero-buttons a, 
+  .hero-buttons button {
+    width: 100%; /* Make buttons/links take full width */
+    margin: 0.5rem 0; /* Adjust margin for vertical stacking */
+  }
+
+
+>>>>>>> 39c4515ded846f8b80ca1a96717b64c5a9c7929c
   .ngo-list {
     grid-template-columns: 1fr;
     padding: 1rem;
   }
 }
+<<<<<<< HEAD
 
 /* Custom styles for specific pages or elements */
 
@@ -1142,3 +1212,5 @@ body {
     border-color: #4cae4c !important; /* Darker green border on hover */
     color: white;
 }
+=======
+>>>>>>> 39c4515ded846f8b80ca1a96717b64c5a9c7929c
